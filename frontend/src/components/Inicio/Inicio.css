@@ -1,0 +1,36 @@
+.hero {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 140px 24px 80px;
+}
+
+.hero__eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--verde-profundo);
+  margin: 0 0 16px;
+}
+
+.hero__title {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.1;
+  font-weight: 600;
+  margin: 0 0 20px;
+  color: var(--carbon);
+}
+
+.hero__subtitle {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--carbon);
+  opacity: 0.75;
+  max-width: 52ch;
+  margin: 0;
+}
