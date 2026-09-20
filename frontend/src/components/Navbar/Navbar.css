@@ -1,0 +1,225 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: transparent;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+
+.navbar--scrolled {
+  background: rgba(250, 246, 239, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 1px 0 rgba(28, 43, 39, 0.08),
+    0 16px 30px -22px rgba(11, 79, 68, 0.4);
+}
+
+.navbar__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Marca */
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--carbon);
+}
+
+.navbar__brand-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--verde-profundo);
+  color: var(--crema);
+  flex-shrink: 0;
+}
+
+.navbar__brand-text {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Enlaces de escritorio */
+
+.navbar__links {
+  display: flex;
+  gap: 28px;
+}
+
+.navbar__link {
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--carbon);
+  text-decoration: none;
+  padding-bottom: 4px;
+}
+
+.navbar__link-underline {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--menta);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.navbar__link:hover .navbar__link-underline {
+  transform: scaleX(1);
+}
+
+.navbar__link--active {
+  color: var(--verde-profundo);
+}
+
+.navbar__link--active .navbar__link-underline {
+  background: var(--verde-profundo);
+  transform: scaleX(1);
+}
+
+/* Acciones */
+
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar__cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--crema);
+  background: var(--ambar);
+  border-radius: 999px;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.25s ease, border-radius 0.5s ease;
+}
+
+.navbar__cta:hover {
+  border-radius: 46% 54% 62% 38% / 40% 55% 45% 60%;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.navbar__cta:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Efecto "slime": un blob detrás del contenido que muta de forma sin parar en hover */
+.navbar__cta-blob {
+  position: absolute;
+  inset: -45%;
+  z-index: -1;
+  background: radial-gradient(circle at 30% 30%, var(--menta), var(--verde-profundo) 75%);
+  opacity: 0;
+  border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
+  transition: opacity 0.35s ease;
+}
+
+.navbar__cta:hover .navbar__cta-blob {
+  opacity: 1;
+  animation: slime-morph 3.2s ease-in-out infinite;
+}
+
+@keyframes slime-morph {
+  0%, 100% { border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%; }
+  25%      { border-radius: 55% 45% 40% 60% / 45% 55% 50% 45%; }
+  50%      { border-radius: 60% 40% 50% 50% / 55% 45% 60% 40%; }
+  75%      { border-radius: 45% 55% 60% 40% / 40% 60% 45% 55%; }
+}
+
+/* Botón hamburguesa (móvil) */
+
+.navbar__toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--carbon);
+  cursor: pointer;
+  padding: 6px;
+  line-height: 0;
+}
+
+/* Menú móvil */
+
+.navbar__mobile {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 24px 20px;
+  overflow: hidden;
+  background: rgba(250, 246, 239, 0.97);
+  backdrop-filter: blur(12px);
+}
+
+.navbar__mobile-link {
+  display: block;
+  padding: 12px 4px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  color: var(--carbon);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gris-suave);
+}
+
+.navbar__mobile-link--active {
+  color: var(--verde-profundo);
+  font-weight: 600;
+}
+
+.navbar__cta--mobile {
+  margin-top: 14px;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Respeta preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .navbar__cta-blob {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .navbar__links {
+    display: none;
+  }
+  .navbar__actions .navbar__cta:not(.navbar__cta--mobile) {
+    display: none;
+  }
+  .navbar__toggle {
+    display: inline-flex;
+  }
+  .navbar__mobile {
+    display: flex;
+  }
+}
