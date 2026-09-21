@@ -1,36 +1,210 @@
+/* HERO */
 .hero {
-  min-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  max-width: 720px;
+  max-width: 780px;
   margin: 0 auto;
-  padding: 140px 24px 80px;
+  padding: 120px 24px 80px;
+  text-align: center;
+  position: relative;
 }
 
 .hero__eyebrow {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.85rem;
   font-weight: 600;
-  color: var(--verde-profundo);
-  margin: 0 0 16px;
+  color: var(--primario);
+  margin-bottom: 16px;
 }
 
 .hero__title {
   font-family: 'Fraunces', serif;
   font-size: clamp(2.2rem, 5vw, 3.4rem);
-  line-height: 1.1;
   font-weight: 600;
-  margin: 0 0 20px;
   color: var(--carbon);
+  line-height: 1.15;
+  margin: 0 0 20px;
 }
 
 .hero__subtitle {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.6;
-  color: var(--carbon);
   opacity: 0.75;
-  max-width: 52ch;
+  margin: 0 0 32px;
+}
+
+.hero__actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.hero__badge {
+  display: inline-block;
+  background: var(--acento-suave);
+  color: #b6402f;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+/* CATEGORÍAS */
+.categorias__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.categoria-card {
+  background: var(--blanco);
+  border: 1px solid var(--gris-suave);
+  border-radius: 16px;
+  padding: 24px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.categoria-card:hover {
+  border-color: var(--menta);
+  box-shadow: 0 10px 24px rgba(31, 111, 120, 0.12);
+}
+.categoria-card__icono {
+  font-size: 1.8rem;
+}
+.categoria-card__nombre {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* PRODUCTOS DESTACADOS */
+.productos__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.producto-card {
+  position: relative;
+  background: var(--blanco);
+  border: 1px solid var(--gris-suave);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.producto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+}
+
+.producto-card__descuento {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--acento);
+  color: var(--blanco);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.producto-card__icono {
+  font-size: 2.4rem;
+  margin-bottom: 8px;
+}
+.producto-card__nombre {
+  font-weight: 600;
+  margin: 4px 0;
+}
+.producto-card__rating {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin: 0 0 6px;
+}
+.producto-card__precio {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primario-oscuro);
   margin: 0;
+}
+
+/* SERVICIOS */
+.servicios__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.servicio-card {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 28px 20px;
+  border: 1px solid var(--gris-suave);
+}
+.servicio-card__icono {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 12px;
+}
+.servicio-card h3 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+.servicio-card p {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* BENEFICIOS */
+.beneficios__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+.beneficio-item {
+  text-align: center;
+  padding: 20px 12px;
+}
+.beneficio-item span {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.beneficio-item p {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* UBICACIÓN */
+.ubicacion {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.ubicacion__mapa {
+  background: var(--gris-suave);
+  border-radius: 16px;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--carbon);
+  opacity: 0.5;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .ubicacion {
+    grid-template-columns: 1fr;
+  }
 }

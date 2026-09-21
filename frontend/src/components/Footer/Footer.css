@@ -1,12 +1,13 @@
 .footer {
-  background: var(--verde-profundo);
+  background: var(--primario-oscuro);
   color: var(--crema);
-  padding: 40px 24px;
+  margin-top: auto;
 }
 
 .footer__inner {
   max-width: 1180px;
   margin: 0 auto;
+  padding: 40px 24px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -17,34 +18,34 @@
 .footer__brand {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-family: 'Fraunces', serif;
   font-weight: 600;
+  font-size: 1.05rem;
 }
 
 .footer__brand-icon {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: var(--ambar);
-  color: var(--carbon);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--acento);
+  color: var(--blanco);
 }
 
 .footer__links {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
+  gap: 20px;
+  font-size: 0.9rem;
 }
 
 .footer__links a {
-  color: var(--crema);
-  text-decoration: none;
-  font-size: 0.9rem;
   opacity: 0.85;
+  transition: opacity 0.2s ease;
 }
-
 .footer__links a:hover {
   opacity: 1;
   text-decoration: underline;
@@ -52,9 +53,21 @@
 
 .footer__copy {
   width: 100%;
+  text-align: center;
   font-size: 0.8rem;
-  opacity: 0.65;
+  opacity: 0.6;
   margin: 0;
-  border-top: 1px solid rgba(250, 246, 239, 0.15);
-  padding-top: 16px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media (min-width: 720px) {
+  .footer__copy {
+    width: auto;
+    padding-top: 0;
+    border-top: none;
+    order: 3;
+    flex-basis: 100%;
+    text-align: center;
+  }
 }

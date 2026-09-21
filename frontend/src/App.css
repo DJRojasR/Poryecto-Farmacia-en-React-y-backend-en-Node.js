@@ -1,13 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  /* Paleta de colores — Botica San Marcos */
-  --verde-profundo: #0b4f44; /* marca, textos fuertes */
-  --menta: #5fbf9f;          /* detalles, hover, subrayados */
-  --ambar: #f5a623;          /* CTA / acento cálido */
-  --crema: #faf6ef;          /* fondo general */
-  --carbon: #1c2b27;         /* texto principal */
-  --gris-suave: #e7e2d8;     /* bordes y divisores */
+  --primario: #1e4066;
+  --primario-oscuro: #142c47;
+  --acento: #e0a03c;
+  --acento-suave: #faedd2;
+  --menta: #cdd9e6;
+  --crema: #faf8f4;
+  --carbon: #24262b;
+  --gris-suave: #e5e1d8;
+  --blanco: #ffffff;
+
+  --navbar-height: 76px;
 }
 
 * {
@@ -16,7 +20,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 88px;
+  scroll-padding-top: var(--navbar-height);
 }
 
 body {
@@ -29,10 +33,75 @@ body {
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
-/* Estilos de sección, compartidos por Medicamentos, Recetas, Nosotros y Contacto */
+img {
+  max-width: 100%;
+  display: block;
+}
 
+button {
+  font-family: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app main,
+.app > *:not(nav):not(footer) {
+  flex: 1;
+}
+
+/* Botones reutilizables en toda la app */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn--primary {
+  background: var(--acento);
+  color: var(--primario-oscuro);
+  box-shadow: 0 8px 20px rgba(224, 160, 60, 0.35);
+}
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(224, 160, 60, 0.45);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--primario-oscuro);
+  border: 1.5px solid var(--primario);
+}
+.btn--ghost:hover {
+  background: rgba(30, 64, 102, 0.08);
+}
+
+.btn--full {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.btn--whatsapp {
+  margin-top: 20px;
+  background: #25d366;
+  color: var(--blanco);
+}
+
+/* Estructura de sección, compartida por Medicamentos, Recetas, Nosotros, Contacto */
 .section {
   max-width: 1180px;
   margin: 0 auto;
@@ -40,14 +109,15 @@ a {
 }
 
 .section--alt {
-  background: rgba(95, 191, 159, 0.08);
+  background: rgba(205, 217, 230, 0.35);
 }
 
 .section h2 {
   font-family: 'Fraunces', serif;
   font-size: 1.8rem;
   font-weight: 600;
-  margin: 0 0 12px;
+  margin: 0 0 32px;
+  color: var(--primario-oscuro);
 }
 
 .section p {
@@ -56,4 +126,18 @@ a {
   opacity: 0.8;
   max-width: 60ch;
   margin: 0;
+}
+
+.section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 24px;
+}
+.section__header h2 {
+  margin-bottom: 0;
+}
+.section__link {
+  font-weight: 600;
+  color: var(--primario);
 }
