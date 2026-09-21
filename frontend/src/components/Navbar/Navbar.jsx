@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Pill, ShoppingCart, Menu, X } from 'lucide-react';
+import { Pill, ShoppingCart, Menu, X, User } from 'lucide-react';
 import './Navbar.css';
 
 const NAV_LINKS = [
   { label: 'Inicio', to: '/' },
   { label: 'Medicamentos', to: '/medicamentos' },
-  { label: 'Recetas', to: '/recetas' },
   { label: 'Nosotros', to: '/nosotros' },
   { label: 'Contacto', to: '/contacto' },
 ];
+
+const linksContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.3 },
+  },
+};
+
+const linkItem = {
+  hidden: { opacity: 0, y: -8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -46,23 +61,47 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="navbar__inner">
-        <NavLink to="/" className="navbar__brand">
-          <span className="navbar__brand-icon">
-            <Pill size={18} strokeWidth={2.5} />
-          </span>
-          <span className="navbar__brand-text">Botica San Marcos</span>
-        </NavLink>
+        <motion.div
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <NavLink to="/" className="navbar__brand">
+            <span className="navbar__brand-icon">
+              <Pill size={18} strokeWidth={2.5} />
+            </span>
+            <span className="navbar__brand-text">Botica San Marcos</span>
+          </NavLink>
+        </motion.div>
 
-        <nav className="navbar__links" aria-label="Navegación principal">
+        <motion.nav
+          className="navbar__links"
+          aria-label="Navegación principal"
+          initial="hidden"
+          animate="visible"
+          variants={linksContainer}
+        >
           {NAV_LINKS.map((link) => (
-            <NavLink key={link.to} to={link.to} end={link.to === '/'} className={linkClassName}>
-              {link.label}
-              <span className="navbar__link-underline" />
-            </NavLink>
+            <motion.div key={link.to} variants={linkItem}>
+              <NavLink to={link.to} end={link.to === '/'} className={linkClassName}>
+                {link.label}
+                <span className="navbar__link-underline" />
+              </NavLink>
+            </motion.div>
           ))}
-        </nav>
+        </motion.nav>
 
-        <div className="navbar__actions">
+        <motion.div
+          className="navbar__actions"
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+        >
+          <button className="navbar__login" type="button">
+            <User size={17} strokeWidth={2.2} />
+            <span>Iniciar sesión</span>
+          </button>
+
           <button className="navbar__cta" type="button">
             <span className="navbar__cta-blob" aria-hidden="true" />
             <ShoppingCart size={17} strokeWidth={2.2} />
@@ -78,7 +117,7 @@ export default function Navbar() {
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
-        </div>
+        </motion.div>
       </div>
 
       <AnimatePresence>
@@ -108,11 +147,29 @@ export default function Navbar() {
                 </NavLink>
               </motion.div>
             ))}
-            <button className="navbar__cta navbar__cta--mobile" type="button">
+
+            <motion.button
+              className="navbar__login navbar__login--mobile"
+              type="button"
+              initial={{ x: -16, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: NAV_LINKS.length * 0.05 }}
+            >
+              <User size={17} strokeWidth={2.2} />
+              <span>Iniciar sesión</span>
+            </motion.button>
+
+            <motion.button
+              className="navbar__cta navbar__cta--mobile"
+              type="button"
+              initial={{ x: -16, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: (NAV_LINKS.length + 1) * 0.05 }}
+            >
               <span className="navbar__cta-blob" aria-hidden="true" />
               <ShoppingCart size={17} strokeWidth={2.2} />
               <span>Comprar ahora</span>
-            </button>
+            </motion.button>
           </motion.nav>
         )}
       </AnimatePresence>
