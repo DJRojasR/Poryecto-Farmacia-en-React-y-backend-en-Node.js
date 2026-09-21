@@ -32,14 +32,11 @@
   color: var(--carbon);
 }
 
+/* Ahora es una <img> con el logo real, no un div con ícono */
 .navbar__brand-icon {
-  display: grid;
-  place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
-  background: var(--primario-oscuro);
-  color: var(--crema);
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -74,7 +71,7 @@
   bottom: 0;
   height: 2px;
   width: 100%;
-  background: var(--acento);
+  background: var(--primario-oscuro);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
@@ -89,7 +86,7 @@
 }
 
 .navbar__link--active .navbar__link-underline {
-  background: var(--primario-oscuro);
+  background: var(--acento);
   transform: scaleX(1);
 }
 
@@ -202,6 +199,9 @@
   .navbar__cta-blob {
     animation: none !important;
   }
+  .navbar__login-shine {
+    display: none !important;
+  }
 }
 
 @media (max-width: 860px) {
@@ -219,18 +219,22 @@
   }
 }
 
-/* Botón de login: sin borde, cambia de color en hover */
+/* Botón de login: sin borde, cambia de color en hover + efecto de luz que lo atraviesa */
 .navbar__login {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
   background: transparent;
   color: var(--primario-oscuro);
   padding: 8px 16px;
+  border: none;
   border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
   transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
 }
 
@@ -238,6 +242,31 @@
   background-color: var(--primario-oscuro);
   color: var(--blanco);
   transform: translateY(-1px);
+}
+
+/* La franja de luz: una barra diagonal que barre el botón al pasar el mouse */
+.navbar__login-shine {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 48%,
+    rgba(255, 255, 255, 0.55) 52%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.navbar__login:hover .navbar__login-shine {
+  animation: login-shine-sweep 0.9s ease forwards;
+}
+
+@keyframes login-shine-sweep {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(120%); }
 }
 
 .navbar__login--mobile {
