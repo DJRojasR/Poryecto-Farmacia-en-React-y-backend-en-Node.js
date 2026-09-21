@@ -3,7 +3,7 @@ import './App.css';
 import Navbar from './components/Navbar/Navbar.jsx';
 import Footer from './components/Footer/Footer.jsx';
 import Inicio from './components/Inicio/Inicio.jsx';
-import Medicamentos from './components/Medicamentos/Medicamentos.jsx';
+import Productos from './components/Productos/Productos.jsx';
 // import Recetas from './components/Recetas/Recetas.jsx';
 import Nosotros from './components/Nosotros/Nosotros.jsx';
 import Contacto from './components/Contacto/Contacto.jsx';
@@ -15,7 +15,7 @@ const App = () => {
 
       <Routes>
         <Route path="/" element={<Inicio />} />
-        <Route path="/medicamentos" element={<Medicamentos />} />
+        <Route path="/productos" element={<Productos />} />
         {/*<Route path="/recetas" element={<Recetas />} />*/}
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/contacto" element={<Contacto />} />

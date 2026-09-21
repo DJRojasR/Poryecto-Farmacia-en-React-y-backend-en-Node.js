@@ -33,6 +33,14 @@
   border-radius: 50%;
   background: var(--acento);
   color: var(--blanco);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.footer__brand-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .footer__links {
