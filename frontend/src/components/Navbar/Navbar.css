@@ -274,3 +274,57 @@
   justify-content: center;
   margin-top: 8px;
 }
+
+.navbar__icon-link {
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px;
+  text-decoration: none;
+}
+
+.navbar__cart { position: relative; }
+
+.navbar__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  background: var(--color-accent, #e8590c);
+  color: #fff;
+}
+
+/* Ahora .navbar__login puede ser un <a>, así que hay que igualar su apariencia al botón */
+a.navbar__login {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.navbar__mobile-cart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+/* El botón "Iniciar/Cerrar sesión" de escritorio se oculta en móvil, donde vive dentro del menú */
+@media (max-width: 860px) {
+  .navbar__login--desktop,
+  .navbar__icon-link--desktop { display: none; }
+}

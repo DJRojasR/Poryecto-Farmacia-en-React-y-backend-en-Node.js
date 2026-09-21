@@ -105,12 +105,9 @@ button {
 .section {
   max-width: 1180px;
   margin: 0 auto;
-  padding: 90px 24px;
+  padding: 40px 12px;
 }
 
-.section--alt {
-  background: rgba(205, 217, 230, 0.35);
-}
 
 .section h2 {
   font-family: 'Fraunces', serif;
