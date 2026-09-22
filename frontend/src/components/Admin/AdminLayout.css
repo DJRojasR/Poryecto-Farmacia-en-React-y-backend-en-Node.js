@@ -1,0 +1,52 @@
+/* src/components/admin/AdminLayout.css */
+.admin {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f5f7;
+}
+
+.admin__sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #142c47;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+}
+
+.admin__marca { font-weight: 700; font-size: 1.05rem; }
+.admin__submarca { font-size: 0.8rem; opacity: 0.65; margin-bottom: 28px; }
+
+.admin__nav { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+
+.admin__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #dbe3ee;
+  text-decoration: none;
+  font-size: 0.92rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+.admin__link:hover { background: rgba(255, 255, 255, 0.08); }
+.admin__link--activo { background: #e0a03c; color: #142c47; font-weight: 600; }
+
+.admin__pie {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 12px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin__salir { color: #f3a2a2; }
+
+.admin__contenido { flex: 1; padding: 24px 32px; }
+.admin__topbar { margin-bottom: 20px; font-weight: 600; color: #142c47; }
