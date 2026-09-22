@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, LogOut, ShoppingCart, ClipboardList } from 'lucide-react';
 import logo from '../../assets/logo.png';
+import { useAuth } from '../../models/context/AuthContext.jsx';
+import { useCart } from '../Auth/Cart/CartContext.jsx';
 import './Navbar.css';
 
 const NAV_LINKS = [
@@ -32,6 +34,10 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const { user, logout } = useAuth();
+  const { cantidad, abrirCarrito } = useCart();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -48,11 +54,25 @@ export default function Navbar() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  const cerrarSesion = () => {
+    logout(); // CartProvider vacía carrito y pedidos al detectar que ya no hay email
+    setMenuOpen(false);
+    navigate('/');
+  };
+
+  const abrirCarritoMovil = () => {
+    setMenuOpen(false);
+    abrirCarrito();
+  };
+
   const linkClassName = ({ isActive }) =>
     `navbar__link${isActive ? ' navbar__link--active' : ''}`;
 
   const mobileLinkClassName = ({ isActive }) =>
     `navbar__mobile-link${isActive ? ' navbar__mobile-link--active' : ''}`;
+
+  // Los links móviles extra dependen de la sesión, así que el retraso de la animación se calcula sobre la marcha
+  const retraso = (indice) => (NAV_LINKS.length + indice) * 0.05;
 
   return (
     <motion.header
@@ -101,11 +121,45 @@ export default function Navbar() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5, delay: 0.35 }}
         >
-          <button className="navbar__login" type="button">
-            <span className="navbar__login-shine" aria-hidden="true" />
-            <User size={17} strokeWidth={2.2} />
-            <span>Iniciar sesión</span>
-          </button>
+          {user ? (
+            <>
+              <NavLink
+                to="/mis-compras"
+                className="navbar__icon-link navbar__icon-link--desktop"
+                aria-label="Mis compras"
+                title="Mis compras"
+              >
+                <ClipboardList size={20} />
+              </NavLink>
+
+              <button
+                type="button"
+                className="navbar__icon-link navbar__cart"
+                onClick={abrirCarrito}
+                aria-label={`Carrito, ${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`}
+                title="Carrito"
+              >
+                <ShoppingCart size={20} />
+                {cantidad > 0 && <span className="navbar__badge">{cantidad}</span>}
+              </button>
+
+              <button
+                className="navbar__login navbar__login--desktop"
+                type="button"
+                onClick={cerrarSesion}
+              >
+                <span className="navbar__login-shine" aria-hidden="true" />
+                <LogOut size={17} strokeWidth={2.2} />
+                <span>Cerrar sesión</span>
+              </button>
+            </>
+          ) : (
+            <Link to="/login" className="navbar__login navbar__login--desktop">
+              <span className="navbar__login-shine" aria-hidden="true" />
+              <User size={17} strokeWidth={2.2} />
+              <span>Iniciar sesión</span>
+            </Link>
+          )}
 
           <button
             className="navbar__toggle"
@@ -147,17 +201,67 @@ export default function Navbar() {
               </motion.div>
             ))}
 
-            <motion.button
-              className="navbar__login navbar__login--mobile"
-              type="button"
-              initial={{ x: -16, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: NAV_LINKS.length * 0.05 }}
-            >
-              <span className="navbar__login-shine" aria-hidden="true" />
-              <User size={17} strokeWidth={2.2} />
-              <span>Iniciar sesión</span>
-            </motion.button>
+            {user ? (
+              <>
+                <motion.div
+                  initial={{ x: -16, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: retraso(0) }}
+                >
+                  <NavLink
+                    to="/mis-compras"
+                    className={mobileLinkClassName}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Mis compras
+                  </NavLink>
+                </motion.div>
+
+                <motion.div
+                  initial={{ x: -16, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: retraso(1) }}
+                >
+                  <button
+                    type="button"
+                    className="navbar__mobile-link navbar__mobile-cart"
+                    onClick={abrirCarritoMovil}
+                  >
+                    <ShoppingCart size={18} />
+                    Carrito{cantidad > 0 ? ` (${cantidad})` : ''}
+                  </button>
+                </motion.div>
+
+                <motion.button
+                  className="navbar__login navbar__login--mobile"
+                  type="button"
+                  onClick={cerrarSesion}
+                  initial={{ x: -16, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: retraso(2) }}
+                >
+                  <span className="navbar__login-shine" aria-hidden="true" />
+                  <LogOut size={17} strokeWidth={2.2} />
+                  <span>Cerrar sesión</span>
+                </motion.button>
+              </>
+            ) : (
+              <motion.div
+                initial={{ x: -16, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: retraso(0) }}
+              >
+                <Link
+                  to="/login"
+                  className="navbar__login navbar__login--mobile"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <span className="navbar__login-shine" aria-hidden="true" />
+                  <User size={17} strokeWidth={2.2} />
+                  <span>Iniciar sesión</span>
+                </Link>
+              </motion.div>
+            )}
           </motion.nav>
         )}
       </AnimatePresence>
