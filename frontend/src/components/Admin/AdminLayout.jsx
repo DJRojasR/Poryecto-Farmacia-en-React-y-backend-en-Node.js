@@ -42,10 +42,6 @@ export default function AdminLayout() {
         </nav>
 
         <div className="admin__pie">
-          <NavLink to="/" className="admin__link">
-            <ArrowLeft size={18} />
-            Volver a la tienda
-          </NavLink>
           <button type="button" className="admin__link admin__salir" onClick={logout}>
             <LogOut size={18} />
             Cerrar sesión

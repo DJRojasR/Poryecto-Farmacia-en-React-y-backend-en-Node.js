@@ -78,7 +78,9 @@ export default function Login() {
   const reducirMovimiento = useReducedMotion();
   const sacudida = useAnimationControls();
 
-  const destino = location.state?.from?.pathname || '/';
+  const destinoSolicitado = location.state?.from?.pathname;
+  const destinoPara = (usuario) => destinoSolicitado || (usuario?.rol === 'admin' ? '/admin' : '/');
+
 
   // Si ya había sesión al abrir /login, no tiene sentido mostrar el formulario
   const [yaTeniaSesion] = useState(Boolean(user));
@@ -92,12 +94,16 @@ export default function Login() {
 
   // Tras el mensaje de bienvenida, se va a la página de origen (o al inicio)
   useEffect(() => {
-    if (!bienvenido) return undefined;
-    const temporizador = setTimeout(() => navigate(destino, { replace: true }), 1300);
-    return () => clearTimeout(temporizador);
-  }, [bienvenido, destino, navigate]);
+  if (!bienvenido) return undefined;
+  const temporizador = setTimeout(
+    () => navigate(destinoPara(bienvenido), { replace: true }),
+    1300
+  );
+  return () => clearTimeout(temporizador);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [bienvenido, navigate]);
 
-  if (yaTeniaSesion) return <Navigate to={destino} replace />;
+if (yaTeniaSesion) return <Navigate to={destinoPara(user)} replace />;
 
   const sacudir = () =>
     sacudida.start({ x: [0, -10, 10, -7, 7, 0], transition: { duration: 0.4 } });
