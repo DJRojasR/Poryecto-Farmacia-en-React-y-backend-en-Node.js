@@ -1,0 +1,212 @@
+.carrito__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(20, 44, 71, 0.45);
+}
+
+.carrito {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  width: min(430px, 100%);
+  background: var(--crema);
+  box-shadow: -20px 0 50px rgba(20, 44, 71, 0.2);
+}
+
+.carrito__cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--gris-suave);
+}
+.carrito__cabecera h2 {
+  margin: 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primario-oscuro);
+}
+
+.carrito__cerrar {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--primario-oscuro);
+  cursor: pointer;
+}
+.carrito__cerrar:hover {
+  background: rgba(30, 64, 102, 0.08);
+}
+
+/* ---------- Lista ---------- */
+.carrito__lista {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px 24px;
+  list-style: none;
+}
+
+.carrito__item {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--gris-suave);
+}
+
+.carrito__miniatura {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--menta);
+  color: var(--primario);
+}
+.carrito__miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carrito__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.carrito__info strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--primario-oscuro);
+}
+.carrito__info > span {
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+
+.carrito__cantidad {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 2px;
+  border: 1.5px solid var(--gris-suave);
+  border-radius: 999px;
+  background: var(--blanco);
+}
+.carrito__cantidad button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--primario);
+  cursor: pointer;
+}
+.carrito__cantidad button:hover {
+  background: rgba(30, 64, 102, 0.1);
+}
+.carrito__cantidad span {
+  min-width: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.carrito__derecha {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.carrito__subtotal {
+  font-weight: 600;
+  color: var(--primario-oscuro);
+}
+.carrito__quitar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #a4332a;
+  cursor: pointer;
+}
+.carrito__quitar:hover {
+  background: #fbe9e6;
+}
+
+/* ---------- Pie ---------- */
+.carrito__pie {
+  padding: 20px 24px 24px;
+  border-top: 1px solid var(--gris-suave);
+  background: var(--blanco);
+}
+.carrito__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.carrito__total span {
+  font-weight: 500;
+}
+.carrito__total strong {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  color: var(--primario-oscuro);
+}
+
+/* ---------- Vacío y confirmación ---------- */
+.carrito__estado {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  text-align: center;
+}
+.carrito__estado-icono {
+  color: var(--primario);
+  opacity: 0.85;
+}
+.carrito__estado h3 {
+  margin: 8px 0 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  color: var(--primario-oscuro);
+}
+.carrito__estado p {
+  max-width: 30ch;
+  margin: 0 0 12px;
+  line-height: 1.5;
+  opacity: 0.75;
+}
+
+.carrito__cerrar:focus-visible,
+.carrito__cantidad button:focus-visible,
+.carrito__quitar:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}

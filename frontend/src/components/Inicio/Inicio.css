@@ -1,10 +1,14 @@
-/* HERO */
+/* ============ HERO ============ */
 .hero {
-  max-width: 780px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 120px 24px 80px;
-  text-align: center;
+  padding: 80px 12px 40px;
   position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 48px;
+  align-items: center;
+  text-align: left;
 }
 
 .hero__eyebrow {
@@ -13,14 +17,14 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--primario);
-  margin-bottom: 16px;
+  margin: 0 0 16px;
 }
 
 .hero__title {
   font-family: 'Fraunces', serif;
   font-size: clamp(2.2rem, 5vw, 3.4rem);
   font-weight: 600;
-  color: var(--carbon);
+  color: var(--primario-oscuro);
   line-height: 1.15;
   margin: 0 0 20px;
 }
@@ -34,29 +38,179 @@
 
 .hero__actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 28px;
 }
 
-.hero__badge {
-  display: inline-block;
-  background: var(--acento-suave);
-  color: #b6402f;
-  padding: 10px 20px;
-  border-radius: 999px;
-  font-size: 0.9rem;
+.hero__media {
+  position: relative;
 }
 
-/* CATEGORÍAS */
-.categorias__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+/* forma decorativa detrás de la imagen */
+.hero__media::before {
+  content: '';
+  position: absolute;
+  inset: 8% 4% 0 8%;
+  background: var(--acento-suave);
+  border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%;
+  z-index: 0;
+}
+
+.hero__image {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ============ CARRUSEL DE PROMOCIONES ============ */
+.promo-carousel {
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--primario), var(--primario-oscuro));
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(20, 44, 71, 0.25);
+}
+
+.promo-carousel__viewport {
+  overflow: hidden;
+}
+
+.promo-slide {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  min-height: 260px;
+  padding: 48px 80px 64px;
+  color: var(--blanco);
+}
+
+.promo-slide__icono {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.6rem;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+}
+
+.promo-slide__etiqueta {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+
+.promo-slide__titulo {
+  font-family: 'Fraunces', serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin: 8px 0;
+  color: var(--blanco);
+}
+
+/* ".section p" de App.css pisa margin y opacity, por eso va más específico */
+.section .promo-slide__descripcion {
+  margin: 0 0 20px;
+  opacity: 0.85;
+  color: var(--blanco);
+}
+
+.promo-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primario-oscuro);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.promo-carousel__arrow:hover {
+  background: var(--acento);
+  transform: translateY(-50%) scale(1.1);
+}
+.promo-carousel__arrow--left {
+  left: 16px;
+}
+.promo-carousel__arrow--right {
+  right: 16px;
+}
+
+.promo-carousel__dots {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.promo-carousel__dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.promo-carousel__dot--active {
+  width: 28px;
+  background: var(--acento);
+}
+
+/* ============ CATEGORÍAS (carrusel infinito) ============ */
+.categorias__carrusel {
+  overflow: hidden;
+  padding: 16px 0 28px; /* espacio para que no se corte el hover ni la sombra */
+  /* bordes difuminados a los lados */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.categorias__track {
+  display: flex;
   gap: 16px;
+  width: max-content;
+  animation: categorias-scroll 30s linear infinite;
+}
+
+/* se pausa al pasar el mouse */
+.categorias__carrusel:hover .categorias__track {
+  animation-play-state: paused;
+}
+
+@keyframes categorias-scroll {
+  from { transform: translateX(0); }
+  /* mitad del track + medio gap (8px) = una vuelta exacta de la lista */
+  to   { transform: translateX(calc(-50% - 8px)); }
 }
 
 .categoria-card {
+  flex: 0 0 150px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   background: var(--blanco);
   border: 1px solid var(--gris-suave);
   border-radius: 16px;
@@ -66,22 +220,42 @@
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* relleno que sube desde abajo */
+.categoria-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--primario), var(--primario-oscuro));
+  transform: translateY(100%);
+  transition: transform 0.35s ease;
+  z-index: -1;
+}
+.categoria-card:hover::before {
+  transform: translateY(0);
 }
 .categoria-card:hover {
-  border-color: var(--menta);
-  box-shadow: 0 10px 24px rgba(31, 111, 120, 0.12);
+  border-color: var(--primario);
+  box-shadow: 0 10px 24px rgba(30, 64, 102, 0.25);
 }
+
 .categoria-card__icono {
+  display: inline-block;
   font-size: 1.8rem;
 }
 .categoria-card__nombre {
   font-size: 0.85rem;
   font-weight: 600;
   text-align: center;
+  transition: color 0.3s ease;
+}
+.categoria-card:hover .categoria-card__nombre {
+  color: var(--blanco);
 }
 
-/* PRODUCTOS DESTACADOS */
+/* ============ PRODUCTOS DESTACADOS ============ */
 .productos__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -90,80 +264,133 @@
 
 .producto-card {
   position: relative;
+  overflow: hidden;
   background: var(--blanco);
   border: 1px solid var(--gris-suave);
   border-radius: 16px;
   padding: 20px;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* brillo que cruza la tarjeta */
+.producto-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.7s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+.producto-card:hover::before {
+  left: 140%;
 }
 .producto-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+  border-color: var(--primario);
+  box-shadow: 0 18px 40px rgba(30, 64, 102, 0.25);
 }
 
 .producto-card__descuento {
   position: absolute;
   top: 12px;
   left: 12px;
+  z-index: 2;
   background: var(--acento);
-  color: var(--blanco);
+  color: var(--primario-oscuro);
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 8px;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
 }
 
 .producto-card__icono {
+  display: inline-block;
   font-size: 2.4rem;
   margin-bottom: 8px;
+  transition: transform 0.3s ease;
 }
-.producto-card__nombre {
+.producto-card:hover .producto-card__icono {
+  transform: scale(1.25) rotate(-8deg);
+}
+
+/* más específicos que ".section p" de App.css */
+.inicio .producto-card__nombre {
   font-weight: 600;
   margin: 4px 0;
+  opacity: 1;
 }
-.producto-card__rating {
+.inicio .producto-card__rating {
   font-size: 0.85rem;
   opacity: 0.7;
   margin: 0 0 6px;
 }
-.producto-card__precio {
+.inicio .producto-card__precio {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--primario-oscuro);
   margin: 0;
+  opacity: 1;
 }
 
-/* SERVICIOS */
+/* ============ SERVICIOS ============ */
 .servicios__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
+/* separa el bloque de servicios del footer */
+.inicio .section--servicios {
+  margin-bottom: 80px;
+}
+
 .servicio-card {
+  position: relative;
   background: var(--blanco);
   border-radius: 16px;
   padding: 28px 20px;
   border: 1px solid var(--gris-suave);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
+.servicio-card:hover {
+  z-index: 2; /* queda por encima de las vecinas al agrandarse */
+  border-color: var(--primario);
+  box-shadow: 0 20px 40px rgba(20, 44, 71, 0.15);
+}
+
 .servicio-card__icono {
+  display: inline-block;
   font-size: 1.8rem;
-  display: block;
   margin-bottom: 12px;
+  transition: transform 0.3s ease;
 }
+.servicio-card:hover .servicio-card__icono {
+  transform: scale(1.3);
+}
+
 .servicio-card h3 {
   margin: 0 0 8px;
   font-size: 1.05rem;
+  color: var(--primario-oscuro);
 }
-.servicio-card p {
+.inicio .servicio-card p {
   margin: 0;
   opacity: 0.7;
   font-size: 0.9rem;
   line-height: 1.5;
 }
 
-/* BENEFICIOS */
+/* ============ BENEFICIOS (sin usar por ahora) ============ */
 .beneficios__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -184,7 +411,7 @@
   margin: 0;
 }
 
-/* UBICACIÓN */
+/* ============ UBICACIÓN (sin usar por ahora) ============ */
 .ubicacion {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -203,8 +430,52 @@
   font-weight: 600;
 }
 
+/* ============ RESPONSIVE ============ */
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding-top: 80px;
+  }
+  .hero__actions {
+    justify-content: center;
+  }
+  .hero__image {
+    max-height: 300px;
+  }
+}
+
 @media (max-width: 720px) {
   .ubicacion {
     grid-template-columns: 1fr;
+  }
+
+  .promo-slide {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    padding: 40px 56px 64px;
+  }
+  .promo-slide__icono {
+    width: 90px;
+    height: 90px;
+    font-size: 2.8rem;
+  }
+}
+
+/* respeta a quien tiene desactivadas las animaciones en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  .producto-card__descuento {
+    animation: none;
+  }
+  .producto-card::before,
+  .categoria-card::before {
+    transition: none;
+  }
+  .categorias__track {
+    animation: none;
+  }
+  .categorias__carrusel {
+    overflow-x: auto;
   }
 }
