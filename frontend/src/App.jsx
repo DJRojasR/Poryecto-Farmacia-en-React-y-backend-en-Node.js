@@ -21,6 +21,13 @@ import Pedidos from './components/Admin/Pedidos/Pedidos.jsx';
 import Usuarios from './components/Admin/Usuarios/Usuarios.jsx';
 import Proveedores from './components/Admin/Proveedores/Proveedores.jsx';
 import Reportes from './components/Admin/Reportes/Reportes.jsx';
+import ReporteVentas from './components/Admin/Reportes/Ventas/Ventas.jsx';
+import Stock from './components/Admin/Reportes/Stock/Stock.jsx';
+import MasVendidos from './components/Admin/Reportes/MasVendidos/MasVendidos.jsx';
+import ProximosVencer from './components/Admin/Reportes/ProximosVencer/ProximosVencer.jsx';
+import Compras from './components/Admin/Reportes/Compras/Compras.jsx';
+import Ingresos from './components/Admin/Reportes/Ingresos/Ingresos.jsx';
+import Resumen from './components/Admin/Reportes/Resumen/Resumen.jsx';
 
 
 const LayoutPrincipal = () => {
@@ -45,14 +52,7 @@ const App = () => {
         <Route path="/productos" element={<Productos />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/contacto" element={<Contacto />} />
-        <Route
-          path="/mis-compras"
-          element={
-            <ProtectedRoute>
-              <MisCompras />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/mis-compras" element={ <ProtectedRoute> <MisCompras /></ProtectedRoute>}/>
         <Route path="*" element={<h2 style={{ padding: '2rem' }}>Página no encontrada</h2>} />
       </Route>
 
@@ -60,14 +60,7 @@ const App = () => {
       <Route path="/login" element={<Login />} />
 
       {/* Panel de administración: su propio layout, sin Navbar ni Footer públicos */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminLayout />
-          </AdminRoute>
-        }
-      >
+      <Route path="/Admin" element={ <AdminRoute> <AdminLayout /> </AdminRoute>}>
         <Route index element={<Dashboard />} />
         <Route path="productos" element={<ProductosAdmin />} />
         <Route path="inventario" element={<Inventario />} />
@@ -76,6 +69,13 @@ const App = () => {
         <Route path="usuarios" element={<Usuarios />} />
         <Route path="proveedores" element={<Proveedores />} />
         <Route path="reportes" element={<Reportes />}>
+          <Route index element={<Resumen />} />
+          <Route path="ventas" element={<ReporteVentas />} />
+          <Route path="stock" element={<Stock />} />
+          <Route path="mas-vendidos" element={<MasVendidos />} />
+          <Route path="proximos-vencer" element={<ProximosVencer />} />
+          <Route path="compras" element={<Compras />} />
+          <Route path="ingresos" element={<Ingresos />} />
         </Route>
       </Route>
     </Routes>

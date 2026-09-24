@@ -1,3 +1,4 @@
+// src/pages/Inicio/Inicio.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
@@ -93,6 +94,70 @@ const servicios = [
   { icono: '📦', titulo: 'Recojo en tienda', desc: 'Pide en línea y recógelo cuando quieras.' },
   { icono: '🩺', titulo: 'Toma de presión', desc: 'Servicio gratuito en tienda física.' },
 ];
+
+// ---------- STATS / CONTADOR ----------
+const statsData = [
+  { valor: 15, sufijo: '+', etiqueta: 'Años de experiencia' },
+  { valor: 50, sufijo: 'k+', etiqueta: 'Clientes atendidos' },
+  { valor: 24, sufijo: '', etiqueta: 'Sucursales en Lima' },
+  { valor: 4.8, sufijo: '★', etiqueta: 'Calificación promedio', decimales: 1 },
+];
+
+function Contador({ valor, decimales = 0 }) {
+  const [display, setDisplay] = useState(0);
+  const [enVista, setEnVista] = useState(false);
+
+  useEffect(() => {
+    if (!enVista) return;
+    const duracion = 1400;
+    const inicio = performance.now();
+
+    let frame;
+    const tick = (ahora) => {
+      const progreso = Math.min((ahora - inicio) / duracion, 1);
+      const facilitado = 1 - Math.pow(1 - progreso, 3); // ease-out
+      setDisplay(valor * facilitado);
+      if (progreso < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [enVista, valor]);
+
+  return (
+    <motion.span onViewportEnter={() => setEnVista(true)} viewport={{ once: true }}>
+      {display.toFixed(decimales)}
+    </motion.span>
+  );
+}
+
+function StatsStrip() {
+  return (
+    <motion.section
+      className="stats-strip"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.5 }}
+    >
+      {statsData.map((stat, i) => (
+        <motion.div
+          key={stat.etiqueta}
+          className="stats-strip__item"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.4, delay: i * 0.1 }}
+        >
+          <p className="stats-strip__valor">
+            <Contador valor={stat.valor} decimales={stat.decimales} />
+            {stat.sufijo}
+          </p>
+          <p className="stats-strip__etiqueta">{stat.etiqueta}</p>
+        </motion.div>
+      ))}
+    </motion.section>
+  );
+}
 
 // Placeholder: reemplaza esta función cuando tengas tu AuthContext real.
 // Por ahora revisa una bandera simple en localStorage.
@@ -269,6 +334,11 @@ export default function Inicio() {
           />
         </motion.div>
       </section>
+
+      {/* ← fin del hero */}
+
+      {/* STATS STRIP */}
+      <StatsStrip />
 
       {/* CARRUSEL DE PROMOCIONES */}
       <section className="section">

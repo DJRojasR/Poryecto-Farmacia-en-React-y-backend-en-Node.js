@@ -1,0 +1,36 @@
+.vencimientos {
+  display: flex;
+  flex-direction: column;
+}
+
+.vencimientos__fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gris-suave);
+}
+.vencimientos__fila:last-child {
+  border-bottom: none;
+}
+
+.vencimientos__nombre {
+  margin: 0 0 2px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.vencimientos__lote {
+  margin: 0;
+  font-size: 0.78rem;
+  opacity: 0.55;
+}
+
+.vencimientos__derecha {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vencimientos__dias {
+  font-size: 0.82rem;
+  opacity: 0.7;
+}

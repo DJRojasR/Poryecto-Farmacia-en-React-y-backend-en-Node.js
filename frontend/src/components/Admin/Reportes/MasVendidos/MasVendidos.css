@@ -1,0 +1,48 @@
+.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ranking__fila {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ranking__puesto {
+  flex-shrink: 0;
+  width: 34px;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+.ranking__info {
+  flex: 1;
+}
+
+.ranking__cabecera {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  margin-bottom: 6px;
+}
+.ranking__nombre {
+  font-weight: 600;
+  color: var(--carbon);
+}
+.ranking__unidades {
+  opacity: 0.6;
+}
+
+.ranking__barra {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--gris-suave);
+  overflow: hidden;
+}
+.ranking__barra-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--acento), var(--primario));
+}

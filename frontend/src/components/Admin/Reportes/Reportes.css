@@ -1,0 +1,106 @@
+.reportes {
+  padding: 8px 4px 40px;
+}
+
+/* ============ ENCABEZADO ============ */
+.reportes__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.reportes__titulo {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--primario-oscuro);
+  margin: 0 0 4px;
+}
+
+.reportes__subtitulo {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.reportes__exportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--primario);
+  background: transparent;
+  color: var(--primario-oscuro);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.reportes__exportar:hover {
+  background: rgba(30, 64, 102, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ============ PESTAÑAS ============ */
+.reportes__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--gris-suave);
+  margin-bottom: 28px;
+  overflow-x: auto;
+}
+
+.reportes__tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--carbon);
+  opacity: 0.6;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+.reportes__tab:hover {
+  opacity: 0.9;
+}
+.reportes__tab--active {
+  color: var(--primario-oscuro);
+  opacity: 1;
+}
+
+.reportes__tab-indicador {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--acento);
+}
+
+/* ============ CONTENIDO ============ */
+.reportes__contenido {
+  background: var(--blanco);
+  border: 1px solid var(--gris-suave);
+  border-radius: 16px;
+  padding: 28px;
+  min-height: 320px;
+}
+
+@media (max-width: 640px) {
+  .reportes__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .reportes__exportar {
+    justify-content: center;
+  }
+}
