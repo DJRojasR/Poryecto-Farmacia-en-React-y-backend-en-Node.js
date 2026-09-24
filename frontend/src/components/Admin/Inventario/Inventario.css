@@ -1,0 +1,141 @@
+/* src/components/Admin/Inventario/Inventario.css */
+
+.inv-admin__cabecera { margin-bottom: 18px; }
+.inv-admin__cabecera h1 {
+  margin: 0 0 4px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  color: var(--primario-oscuro, #142c47);
+}
+.inv-admin__cabecera p { margin: 0; opacity: 0.65; font-size: 0.9rem; }
+
+.inv-admin__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.inv-admin__tarjeta {
+  background: #fff;
+  border: 1px solid #eceef1;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.inv-admin__tarjeta-num { font-size: 1.6rem; font-weight: 700; color: var(--primario-oscuro, #142c47); }
+.inv-admin__tarjeta-label { font-size: 0.8rem; opacity: 0.65; }
+.inv-admin__tarjeta--alerta .inv-admin__tarjeta-num { color: #b8860b; }
+.inv-admin__tarjeta--critico .inv-admin__tarjeta-num { color: #b3261e; }
+
+.inv-admin__buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 10px;
+  padding: 10px 14px;
+  max-width: 340px;
+  margin-bottom: 18px;
+  color: #8a919c;
+}
+.inv-admin__buscador input { border: none; outline: none; flex: 1; font-size: 0.92rem; color: #24262b; }
+
+.inv-admin__tabla-wrap {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #eceef1;
+  box-shadow: 0 2px 10px rgba(20, 44, 71, 0.06);
+  overflow-x: auto;
+}
+.inv-admin__tabla { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.inv-admin__tabla th {
+  text-align: left;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #8a919c;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eceef1;
+}
+.inv-admin__tabla td { padding: 12px 16px; border-bottom: 1px solid #f2f3f5; vertical-align: middle; }
+.inv-admin__tabla tbody tr:hover { background: #fafbfc; }
+
+.inv-admin__nombre-celda { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.inv-admin__miniatura {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--acento-suave, #faedd2);
+  color: var(--primario-oscuro, #142c47);
+  display: grid; place-items: center; overflow: hidden; flex-shrink: 0;
+}
+.inv-admin__miniatura img { width: 100%; height: 100%; object-fit: cover; }
+
+.inv-admin__stock {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 999px;
+  background: #e6f4ea; color: #227a45; font-weight: 600; font-size: 0.82rem;
+}
+.inv-admin__stock--bajo { background: #fdf3e0; color: #b8860b; }
+.inv-admin__stock--critico { background: #fdeaea; color: #b3261e; }
+
+.inv-admin__acciones { display: flex; gap: 8px; align-items: center; justify-content: flex-end; }
+.inv-admin__acciones button {
+  border: none; background: #f4f5f7; color: #3d4a5c;
+  width: 32px; height: 32px; border-radius: 8px;
+  display: grid; place-items: center; cursor: pointer;
+}
+.inv-admin__acciones button:hover { background: #e9ebee; }
+.btn--pequeno { width: auto !important; padding: 0 12px; font-size: 0.82rem; }
+
+.inv-admin__vacio { text-align: center; padding: 32px 12px !important; color: #a7adb5; }
+
+/* Modales */
+.inv-admin__overlay {
+  position: fixed; inset: 0; background: rgba(20, 44, 71, 0.45);
+  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+}
+.inv-admin__modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 460px;
+  max-height: 90vh; overflow-y: auto; padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.inv-admin__modal-cabecera { display: flex; justify-content: space-between; align-items: center; }
+.inv-admin__modal-cabecera h2 { margin: 0; font-size: 1.1rem; color: var(--primario-oscuro, #142c47); }
+.inv-admin__modal-cabecera button { border: none; background: none; cursor: pointer; color: #8a919c; }
+
+.inv-admin__stock-actual { margin: 0; font-size: 0.9rem; opacity: 0.75; }
+
+.inv-admin__tipo-toggle { display: flex; gap: 8px; }
+.inv-admin__tipo {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px; border-radius: 8px; border: 1px solid #e5e1d8; background: #fff;
+  cursor: pointer; font-size: 0.88rem; color: #3d4a5c;
+}
+.inv-admin__tipo--activo { border-color: var(--primario, #1e4066); background: var(--acento-suave, #faedd2); }
+
+.inv-admin__campo { display: flex; flex-direction: column; gap: 6px; }
+.inv-admin__campo label { font-size: 0.82rem; font-weight: 600; color: #3d4a5c; }
+.inv-admin__campo input, .inv-admin__campo select {
+  border: 1px solid #e5e1d8; border-radius: 8px; padding: 10px 12px;
+  font-size: 0.92rem; font-family: inherit; outline: none;
+}
+.inv-admin__campo input:focus, .inv-admin__campo select:focus { border-color: var(--primario, #1e4066); }
+
+.inv-admin__error { font-size: 0.78rem; color: #b3261e; }
+
+.inv-admin__modal-pie { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+
+.inv-admin__vacio-historial { text-align: center; padding: 20px; color: #a7adb5; }
+.inv-admin__lista-mov { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.inv-admin__mov { display: flex; gap: 10px; align-items: flex-start; padding: 10px; border-radius: 10px; background: #fafbfc; }
+.inv-admin__mov p { margin: 0; font-size: 0.88rem; font-weight: 500; }
+.inv-admin__mov small { display: block; opacity: 0.6; font-size: 0.76rem; }
+.inv-admin__mov--entrada .inv-admin__mov-icono { color: #227a45; }
+.inv-admin__mov--salida .inv-admin__mov-icono { color: #b3261e; }
+.inv-admin__mov-nota { font-style: italic; }
+
+@media (max-width: 640px) {
+  .inv-admin__tarjetas { grid-template-columns: repeat(2, 1fr); }
+}

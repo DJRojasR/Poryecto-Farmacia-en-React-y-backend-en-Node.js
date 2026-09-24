@@ -10,18 +10,18 @@ export default function Footer() {
           <span className="footer__brand-icon">
             <img src={farmacia} alt="Logo Botica San Marcos" />
           </span>
-          <span>Botica San Marcos</span>
+          <span>Farmacia San Marcos</span>
         </div>
 
         <nav className="footer__links" aria-label="Enlaces de pie de página">
           <Link to="/">Inicio</Link>
-          <Link to="/medicamentos">Medicamentos</Link>
+          <Link to="/productos">Productos</Link>
           <Link to="/nosotros">Nosotros</Link>
           <Link to="/contacto">Contacto</Link>
         </nav>
 
         <p className="footer__copy">
-          © {new Date().getFullYear()} Botica San Marcos. Todos los derechos reservados.
+          © {new Date().getFullYear()} Farmacia San Marcos. Todos los derechos reservados.
         </p>
       </div>
     </footer>

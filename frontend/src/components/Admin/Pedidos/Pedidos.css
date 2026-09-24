@@ -1,0 +1,132 @@
+/* src/components/Admin/Pedidos/Pedidos.css */
+
+.ped-admin__cabecera { margin-bottom: 18px; }
+.ped-admin__cabecera h1 {
+  margin: 0 0 4px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  color: var(--primario-oscuro, #142c47);
+}
+.ped-admin__cabecera p { margin: 0; opacity: 0.65; font-size: 0.9rem; }
+
+.ped-admin__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.ped-admin__tarjeta {
+  background: #fff;
+  border: 1px solid #eceef1;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ped-admin__tarjeta-num { font-size: 1.6rem; font-weight: 700; color: var(--primario-oscuro, #142c47); }
+.ped-admin__tarjeta-label { font-size: 0.8rem; opacity: 0.65; }
+.ped-admin__tarjeta--alerta .ped-admin__tarjeta-num { color: #b8860b; }
+.ped-admin__tarjeta--exito .ped-admin__tarjeta-num { color: #227a45; }
+
+.ped-admin__filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.ped-admin__buscador {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #e5e1d8;
+  border-radius: 10px;
+  padding: 10px 14px;
+  max-width: 320px;
+  flex: 1;
+  color: #8a919c;
+}
+.ped-admin__buscador input { border: none; outline: none; flex: 1; font-size: 0.92rem; color: #24262b; }
+
+.ped-admin__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ped-admin__chip {
+  border: 1px solid #e5e1d8; background: #fff; color: #3d4a5c;
+  padding: 7px 14px; border-radius: 999px; font-size: 0.82rem; cursor: pointer;
+}
+.ped-admin__chip--activo { background: var(--primario, #1e4066); border-color: var(--primario, #1e4066); color: #fff; }
+
+.ped-admin__lista { display: flex; flex-direction: column; gap: 10px; }
+.ped-admin__tarjeta-pedido {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #eceef1;
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+.ped-admin__tarjeta-pedido:hover { border-color: #d9dce1; box-shadow: 0 2px 8px rgba(20, 44, 71, 0.06); }
+
+.ped-admin__icono-pedido {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--acento-suave, #faedd2);
+  color: var(--primario-oscuro, #142c47);
+  display: grid; place-items: center; flex-shrink: 0;
+}
+
+.ped-admin__pedido-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ped-admin__pedido-info strong { font-size: 0.94rem; }
+.ped-admin__pedido-info small { opacity: 0.6; font-size: 0.78rem; }
+
+.ped-admin__pedido-items { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; color: #8a919c; }
+.ped-admin__pedido-total { color: var(--primario-oscuro, #142c47); white-space: nowrap; }
+
+.ped-admin__estado {
+  padding: 4px 12px; border-radius: 999px; font-weight: 600; font-size: 0.8rem; white-space: nowrap;
+}
+
+.ped-admin__vacio { text-align: center; padding: 32px 12px; color: #a7adb5; background: #fff; border-radius: 12px; border: 1px solid #eceef1; }
+
+/* Modal de detalle */
+.ped-admin__overlay {
+  position: fixed; inset: 0; background: rgba(20, 44, 71, 0.45);
+  display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+}
+.ped-admin__modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 440px;
+  max-height: 90vh; overflow-y: auto; padding: 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.ped-admin__modal-cabecera { display: flex; justify-content: space-between; align-items: center; }
+.ped-admin__modal-cabecera h2 { margin: 0; font-size: 1.1rem; color: var(--primario-oscuro, #142c47); }
+.ped-admin__modal-cabecera button { border: none; background: none; cursor: pointer; color: #8a919c; }
+
+.ped-admin__detalle-cliente { display: flex; flex-direction: column; gap: 4px; font-size: 0.88rem; color: #3d4a5c; }
+.ped-admin__detalle-cliente p { margin: 0; display: flex; align-items: center; gap: 6px; }
+.ped-admin__detalle-sub { opacity: 0.6; padding-left: 20px; }
+
+.ped-admin__items { list-style: none; margin: 0; padding: 0; border-top: 1px solid #f2f3f5; border-bottom: 1px solid #f2f3f5; }
+.ped-admin__items li { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.88rem; }
+
+.ped-admin__totales { display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; color: #3d4a5c; }
+.ped-admin__totales strong { color: var(--primario-oscuro, #142c47); }
+
+.ped-admin__campo { display: flex; flex-direction: column; gap: 6px; }
+.ped-admin__campo label { font-size: 0.82rem; font-weight: 600; color: #3d4a5c; }
+.ped-admin__campo select {
+  border: 1px solid #e5e1d8; border-radius: 8px; padding: 10px 12px;
+  font-size: 0.92rem; font-family: inherit; outline: none;
+}
+
+@media (max-width: 640px) {
+  .ped-admin__tarjetas { grid-template-columns: repeat(2, 1fr); }
+  .ped-admin__tarjeta-pedido { grid-template-columns: auto 1fr; row-gap: 6px; }
+  .ped-admin__pedido-items, .ped-admin__pedido-total, .ped-admin__estado { grid-column: 2; justify-self: start; }
+}
