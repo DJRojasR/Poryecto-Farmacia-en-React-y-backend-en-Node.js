@@ -1,21 +1,21 @@
-// src/components/admin/AdminLayout.jsx
+// src/components/Admin/AdminLayout.jsx
 import { NavLink, Outlet } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Boxes, ShoppingCart, ClipboardList,
-  Users, Truck, BarChart3, ArrowLeft, LogOut,
+  Users, Truck, BarChart3, LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../models/context/AuthContext.jsx';
 import './AdminLayout.css';
 
 const MODULOS = [
-  { to: '/admin', fin: true, icono: LayoutDashboard, label: 'Dashboard' },
-  { to: '/admin/productos', icono: Package, label: 'Productos' },
-  { to: '/admin/inventario', icono: Boxes, label: 'Inventario' },
-  { to: '/admin/ventas', icono: ShoppingCart, label: 'Ventas' },
-  { to: '/admin/pedidos', icono: ClipboardList, label: 'Pedidos' },
-  { to: '/admin/usuarios', icono: Users, label: 'Usuarios' },
-  { to: '/admin/proveedores', icono: Truck, label: 'Proveedores' },
-  { to: '/admin/reportes', icono: BarChart3, label: 'Reportes' },
+  { to: '/Admin', fin: true, icono: LayoutDashboard, label: 'Dashboard' },
+  { to: '/Admin/productos', icono: Package, label: 'Productos' },
+  { to: '/Admin/inventario', icono: Boxes, label: 'Inventario' },
+  { to: '/Admin/ventas', icono: ShoppingCart, label: 'Ventas' },
+  { to: '/Admin/pedidos', icono: ClipboardList, label: 'Pedidos' },
+  { to: '/Admin/usuarios', icono: Users, label: 'Usuarios' },
+  { to: '/Admin/proveedores', icono: Truck, label: 'Proveedores' },
+  { to: '/Admin/reportes', icono: BarChart3, label: 'Reportes' },
 ];
 
 export default function AdminLayout() {
