@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, User, LogOut, ShoppingCart, ClipboardList } from 'lucide-react';
+import { Menu, X, User, LogOut, ShoppingCart, ClipboardList, LayoutDashboard } from 'lucide-react';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../models/context/AuthContext.jsx';
 import { useCart } from '../Auth/Cart/CartContext.jsx';
@@ -38,6 +38,8 @@ export default function Navbar() {
   const { cantidad, abrirCarrito } = useCart();
   const navigate = useNavigate();
 
+  const esAdmin = user?.rol === 'admin';
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -57,7 +59,7 @@ export default function Navbar() {
   const cerrarSesion = () => {
     logout(); // CartProvider vacía carrito y pedidos al detectar que ya no hay email
     setMenuOpen(false);
-    navigate('/');
+    navigate('/', { replace: true });
   };
 
   const abrirCarritoMovil = () => {
@@ -123,31 +125,40 @@ export default function Navbar() {
         >
           {user ? (
             <>
-              <NavLink
-                to="/mis-compras"
-                className="navbar__icon-link navbar__icon-link--desktop"
-                aria-label="Mis compras"
-                title="Mis compras"
-              >
-                <ClipboardList size={20} />
-              </NavLink>
+              {esAdmin ? (
+                <NavLink
+                  to="/admin"
+                  className="navbar__icon-link navbar__icon-link--desktop"
+                  aria-label="Panel de administración"
+                  title="Panel de administración"
+                >
+                  <LayoutDashboard size={20} />
+                </NavLink>
+              ) : (
+                <>
+                  <NavLink
+                    to="/mis-compras"
+                    className="navbar__icon-link navbar__icon-link--desktop"
+                    aria-label="Mis compras"
+                    title="Mis compras"
+                  >
+                    <ClipboardList size={20} />
+                  </NavLink>
 
-              <button
-                type="button"
-                className="navbar__icon-link navbar__cart"
-                onClick={abrirCarrito}
-                aria-label={`Carrito, ${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`}
-                title="Carrito"
-              >
-                <ShoppingCart size={20} />
-                {cantidad > 0 && <span className="navbar__badge">{cantidad}</span>}
-              </button>
+                  <button
+                    type="button"
+                    className="navbar__icon-link navbar__cart"
+                    onClick={abrirCarrito}
+                    aria-label={`Carrito, ${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`}
+                    title="Carrito"
+                  >
+                    <ShoppingCart size={20} />
+                    {cantidad > 0 && <span className="navbar__badge">{cantidad}</span>}
+                  </button>
+                </>
+              )}
 
-              <button
-                className="navbar__login navbar__login--desktop"
-                type="button"
-                onClick={cerrarSesion}
-              >
+              <button className="navbar__login navbar__login--desktop" type="button" onClick={cerrarSesion}>
                 <span className="navbar__login-shine" aria-hidden="true" />
                 <LogOut size={17} strokeWidth={2.2} />
                 <span>Cerrar sesión</span>
@@ -203,34 +214,28 @@ export default function Navbar() {
 
             {user ? (
               <>
-                <motion.div
-                  initial={{ x: -16, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: retraso(0) }}
-                >
-                  <NavLink
-                    to="/mis-compras"
-                    className={mobileLinkClassName}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Mis compras
-                  </NavLink>
-                </motion.div>
+                {esAdmin ? (
+                  <motion.div initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: retraso(0) }}>
+                    <NavLink to="/admin" className={mobileLinkClassName} onClick={() => setMenuOpen(false)}>
+                      Panel de administración
+                    </NavLink>
+                  </motion.div>
+                ) : (
+                  <>
+                    <motion.div initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: retraso(0) }}>
+                      <NavLink to="/mis-compras" className={mobileLinkClassName} onClick={() => setMenuOpen(false)}>
+                        Mis compras
+                      </NavLink>
+                    </motion.div>
 
-                <motion.div
-                  initial={{ x: -16, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: retraso(1) }}
-                >
-                  <button
-                    type="button"
-                    className="navbar__mobile-link navbar__mobile-cart"
-                    onClick={abrirCarritoMovil}
-                  >
-                    <ShoppingCart size={18} />
-                    Carrito{cantidad > 0 ? ` (${cantidad})` : ''}
-                  </button>
-                </motion.div>
+                    <motion.div initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: retraso(1) }}>
+                      <button type="button" className="navbar__mobile-link navbar__mobile-cart" onClick={abrirCarritoMovil}>
+                        <ShoppingCart size={18} />
+                        Carrito{cantidad > 0 ? ` (${cantidad})` : ''}
+                      </button>
+                    </motion.div>
+                  </>
+                )}
 
                 <motion.button
                   className="navbar__login navbar__login--mobile"
@@ -238,7 +243,7 @@ export default function Navbar() {
                   onClick={cerrarSesion}
                   initial={{ x: -16, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: retraso(2) }}
+                  transition={{ delay: retraso(esAdmin ? 1 : 2) }}
                 >
                   <span className="navbar__login-shine" aria-hidden="true" />
                   <LogOut size={17} strokeWidth={2.2} />
@@ -246,16 +251,8 @@ export default function Navbar() {
                 </motion.button>
               </>
             ) : (
-              <motion.div
-                initial={{ x: -16, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: retraso(0) }}
-              >
-                <Link
-                  to="/login"
-                  className="navbar__login navbar__login--mobile"
-                  onClick={() => setMenuOpen(false)}
-                >
+              <motion.div initial={{ x: -16, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: retraso(0) }}>
+                <Link to="/login" className="navbar__login navbar__login--mobile" onClick={() => setMenuOpen(false)}>
                   <span className="navbar__login-shine" aria-hidden="true" />
                   <User size={17} strokeWidth={2.2} />
                   <span>Iniciar sesión</span>

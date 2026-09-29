@@ -1,0 +1,46 @@
+/* Registro reutiliza la estructura de Login.css (login__*); aquí solo lo propio */
+
+.registro__row {
+  display: grid;
+  gap: 20px;
+}
+
+.registro__strength {
+  margin-top: 10px;
+}
+.registro__bars {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.registro__bars span {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--gris-suave);
+  transition: background 0.25s ease;
+}
+.registro__bars--1 span:nth-child(-n + 1) { background: #c0392b; }
+.registro__bars--2 span:nth-child(-n + 2) { background: var(--acento); }
+.registro__bars--3 span:nth-child(-n + 3) { background: var(--menta); }
+.registro__bars--4 span:nth-child(-n + 4) { background: var(--primario); }
+
+.registro__hint {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+.registro__switch {
+  margin: 0;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.registro__switch a {
+  font-weight: 600;
+  color: var(--primario);
+  text-decoration: underline;
+}
+.registro__switch a:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}

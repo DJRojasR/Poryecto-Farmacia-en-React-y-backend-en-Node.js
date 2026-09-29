@@ -1,77 +1,97 @@
-// src/models/context/AuthContext.jsx
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { borrarClave, guardarJSON, leerJSON } from '../helpers/almacenamiento.js';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+const API_URL = import.meta.env.VITE_API_URL;
+const CLAVE = 'bsm_session';
 
 const AuthContext = createContext(null);
 
-const CLAVE_SESION = 'fsm_sesion';
-const clavePerfil = (email) => `fsm_perfil_${email}`;
+function leerSesion() {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE)) || null;
+  } catch {
+    return null;
+  }
+}
 
-// Prueba: cualquier correo de esta lista entra como administrador.
-// TODO (backend): el rol debe venir del servidor, nunca decidirse en el cliente.
-const CORREOS_ADMIN = ['admin@gmail.com'];
+async function peticion(ruta, { metodo = 'GET', cuerpo, token } = {}) {
+  let respuesta;
+  try {
+    respuesta = await fetch(`${API_URL}${ruta}`, {
+      method: metodo,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: cuerpo ? JSON.stringify(cuerpo) : undefined,
+    });
+  } catch {
+    throw new Error('No hay conexión con el servidor. Revisa que el backend esté encendido.');
+  }
 
-const nombreDesdeCorreo = (email) => {
-  const base = email.split('@')[0].split(/[._-]/)[0] || 'Cliente';
-  return base.charAt(0).toUpperCase() + base.slice(1);
-};
-
-const rolDesdeCorreo = (email) => (CORREOS_ADMIN.includes(email) ? 'admin' : 'cliente');
+  const datos = await respuesta.json().catch(() => ({}));
+  if (!respuesta.ok) {
+    const error = new Error(datos.mensaje || 'Ocurrió un error. Inténtalo de nuevo.');
+    error.campo = datos.campo;
+    error.status = respuesta.status;
+    throw error;
+  }
+  return datos;
+}
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => leerJSON(CLAVE_SESION));
+  const [sesion, setSesion] = useState(leerSesion);
+  // Si hay token guardado, se confirma con el servidor antes de dejar pasar a rutas protegidas
+  const [cargando, setCargando] = useState(() => Boolean(leerSesion()?.token));
+
+  const guardar = useCallback((nueva) => {
+    if (nueva) localStorage.setItem(CLAVE, JSON.stringify(nueva));
+    else localStorage.removeItem(CLAVE);
+    setSesion(nueva);
+  }, []);
+
+  useEffect(() => {
+    const guardada = leerSesion();
+    if (!guardada?.token) return;
+    peticion('/auth/me', { token: guardada.token })
+      .then(({ usuario }) => guardar({ token: guardada.token, usuario }))
+      .catch((err) => {
+        // Solo se cierra la sesión si el servidor la rechaza (no si está apagado)
+        if (err.status === 401 || err.status === 403) guardar(null);
+      })
+      .finally(() => setCargando(false));
+  }, [guardar]);
 
   const login = useCallback(async (email, password) => {
-    await new Promise((resolver) => setTimeout(resolver, 900));
-
-    const correo = email.trim().toLowerCase();
-    if (!correo || !password) {
-      throw new Error('Completa tu correo y tu contraseña.');
-    }
-
-    const existente = leerJSON(clavePerfil(correo));
-    const usuario = existente
-      ? { ...existente, rol: existente.rol ?? rolDesdeCorreo(correo) }
-      : {
-          nombre: nombreDesdeCorreo(correo),
-          email: correo,
-          telefono: '',
-          direccion: '',
-          distrito: '',
-          rol: rolDesdeCorreo(correo),
-        };
-
-    guardarJSON(CLAVE_SESION, usuario);
-    guardarJSON(clavePerfil(correo), usuario); // así queda registrado aunque nunca edite su perfil
-    setUser(usuario);
+    const { token, usuario } = await peticion('/auth/login', { metodo: 'POST', cuerpo: { email, password } });
+    guardar({ token, usuario });
     return usuario;
-  }, []);
+  }, [guardar]);
 
-  const logout = useCallback(() => {
-    borrarClave(CLAVE_SESION);
-    setUser(null);
-  }, []);
+  const registrar = useCallback(async (nombre, email, password) => {
+    const { token, usuario } = await peticion('/auth/registro', { metodo: 'POST', cuerpo: { nombre, email, password } });
+    guardar({ token, usuario });
+    return usuario;
+  }, [guardar]);
 
-  const actualizarPerfil = useCallback((cambios) => {
-    setUser((actual) => {
-      if (!actual) return actual;
-      const nuevo = { ...actual, ...cambios };
-      guardarJSON(CLAVE_SESION, nuevo);
-      guardarJSON(clavePerfil(nuevo.email), nuevo);
-      return nuevo;
-    });
-  }, []);
+  const logout = useCallback(() => guardar(null), [guardar]);
 
-  const value = useMemo(
-    () => ({ user, login, logout, actualizarPerfil }),
-    [user, login, logout, actualizarPerfil]
+  const valor = useMemo(
+    () => ({
+      user: sesion?.usuario || null,
+      token: sesion?.token || null,
+      cargando,
+      login,
+      registrar,
+      logout,
+    }),
+    [sesion, cargando, login, registrar, logout]
   );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth debe usarse dentro de <AuthProvider>');
-  return ctx;
+  const contexto = useContext(AuthContext);
+  if (!contexto) throw new Error('useAuth debe usarse dentro de <AuthProvider>');
+  return contexto;
 }

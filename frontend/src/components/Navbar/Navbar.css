@@ -328,3 +328,22 @@ a.navbar__login {
   .navbar__login--desktop,
   .navbar__icon-link--desktop { display: none; }
 }
+
+.navbar__register {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primario);
+  padding: 0 6px;
+}
+.navbar__register:hover {
+  text-decoration: underline;
+}
+.navbar__register:focus-visible {
+  outline: 3px solid var(--acento);
+  outline-offset: 2px;
+}
+@media (max-width: 860px) {
+  .navbar__register--desktop {
+    display: none;
+  }
+}
