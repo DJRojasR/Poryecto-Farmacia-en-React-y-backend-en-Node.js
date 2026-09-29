@@ -1,43 +1,57 @@
 // src/models/helpers/productos.js
-import { guardarJSON, leerJSON } from './almacenamiento.js';
+const API_URL = import.meta.env.VITE_API_URL; 
+const ORIGEN_API = API_URL.replace(/\/api\/?$/, '');
 
-const CLAVE_PRODUCTOS = 'fsm_productos';
+// La BD guarda solo "/uploads/xxx.webp"; aquí se arma la URL completa
+export const urlImagen = (ruta) => (ruta ? `${ORIGEN_API}${ruta}` : null);
 
-export const CATEGORIAS = [
-  'Medicamentos',
-  'Cuidado personal',
-  'Vitaminas y suplementos',
-  'Primeros auxilios',
-  'Cuidado del bebé',
-  'Otros',
-];
+async function pedir(ruta, { metodo = 'GET', cuerpo, token } = {}) {
+  const esForm = cuerpo instanceof FormData;
+  let respuesta;
+  try {
+    respuesta = await fetch(`${API_URL}${ruta}`, {
+      method: metodo,
+      headers: {
+        ...(cuerpo && !esForm ? { 'Content-Type': 'application/json' } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: !cuerpo ? undefined : esForm ? cuerpo : JSON.stringify(cuerpo),
+    });
+  } catch {
+    throw new Error('No hay conexión con el servidor. Revisa que el backend esté encendido.');
+  }
 
-// TODO (backend): reemplazar por GET /api/productos
-export function obtenerProductos() {
-  return leerJSON(CLAVE_PRODUCTOS, []);
+  const datos = await respuesta.json().catch(() => ({}));
+  if (!respuesta.ok) {
+    const error = new Error(datos.mensaje || 'Ocurrió un error. Inténtalo de nuevo.');
+    error.status = respuesta.status;
+    error.errores = datos.errores; // errores por campo, si el backend los manda
+    throw error;
+  }
+  return datos;
 }
 
-// TODO (backend): reemplazar por POST /api/productos
-export function guardarProductos(productos) {
-  guardarJSON(CLAVE_PRODUCTOS, productos);
+export const obtenerCategorias = () => pedir('/productos/categorias');
+
+export function listarProductos(token, { q, estado, agotados, pagina, limite = 10 } = {}) {
+  const params = new URLSearchParams({ estado: estado || 'todos', pagina: pagina || 1, limite });
+  if (q) params.set('q', q);
+  if (agotados) params.set('agotados', 'true');
+  return pedir(`/admin/productos?${params}`, { token });
 }
 
-export function crearProducto(datos) {
-  const productos = obtenerProductos();
-  const nuevo = {
-    id: `PROD-${Date.now()}`,
-    ...datos,
-  };
-  guardarProductos([nuevo, ...productos]);
-  return nuevo;
-}
+// crear y actualizar reciben un FormData (por la imagen)
+export const crearProducto = (token, formData) =>
+  pedir('/admin/productos', { metodo: 'POST', cuerpo: formData, token });
 
-export function actualizarProducto(id, cambios) {
-  const productos = obtenerProductos().map((p) => (p.id === id ? { ...p, ...cambios } : p));
-  guardarProductos(productos);
-}
+export const actualizarProducto = (token, id, formData) =>
+  pedir(`/admin/productos/${id}`, { metodo: 'PATCH', cuerpo: formData, token });
 
-export function eliminarProducto(id) {
-  const productos = obtenerProductos().filter((p) => p.id !== id);
-  guardarProductos(productos);
-}
+export const ajustarStock = (token, id, ajuste) =>
+  pedir(`/admin/productos/${id}/stock`, { metodo: 'PATCH', cuerpo: { ajuste }, token });
+
+export const eliminarProducto = (token, id) =>
+  pedir(`/admin/productos/${id}`, { metodo: 'DELETE', token });
+
+export const reactivarProducto = (token, id) =>
+  pedir(`/admin/productos/${id}/reactivar`, { metodo: 'PATCH', token });

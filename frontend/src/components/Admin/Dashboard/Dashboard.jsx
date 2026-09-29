@@ -4,7 +4,7 @@ import {
   AlertTriangle, Boxes, Building2, Coins, FileBarChart, Package, ShoppingBag, Users,
 } from 'lucide-react';
 import { useAuth } from '../../../models/context/AuthContext.jsx';
-import { obtenerProductos } from '../../../models/helpers/productos.js';
+import { obtenerProductos } from '../../../models/helpers/productos_local.js';
 import { resumenInventario } from '../../../models/helpers/inventario.js';
 import { ESTADOS_PEDIDO, obtenerPedidos, resumenPedidos } from '../../../models/helpers/pedidos.js';
 import { resumenProveedores } from '../../../models/helpers/proveedores.js';
