@@ -228,3 +228,15 @@
 @media (max-width: 520px) {
   .prod-admin__fila { grid-template-columns: 1fr; }
 }
+
+.prod-admin__filtros { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+.prod-admin__filtros .prod-admin__buscador { flex: 1; min-width: 220px; margin-bottom: 0; }
+.prod-admin__error-general { background: #fdecec; color: #b42318; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+.prod-admin__check { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.prod-admin__preview { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; margin-top: 8px; }
+.prod-admin__ajuste { display: flex; gap: 8px; }
+.prod-admin__badge { margin-left: 8px; padding: 2px 8px; font-size: 11px; border-radius: 999px; background: #e7f0ff; color: #1d4ed8; }
+.prod-admin__badge--off { background: #f3f4f6; color: #6b7280; }
+.prod-admin__marca { color: #6b7280; }
+.prod-admin__fila--inactiva { opacity: 0.6; }
+.prod-admin__paginacion { display: flex; gap: 16px; justify-content: center; align-items: center; margin-top: 16px; }

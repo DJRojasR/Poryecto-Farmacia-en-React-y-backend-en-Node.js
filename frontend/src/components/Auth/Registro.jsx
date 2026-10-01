@@ -1,21 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useAnimationControls, useReducedMotion } from 'framer-motion';
 import {
   AlertCircle,
   ArrowLeft,
-  ClipboardList,
   Eye,
   EyeOff,
   Loader2,
   Lock,
   Mail,
-  RotateCcw,
+  ShoppingCart,
   ShieldCheck,
+  User,
+  ClipboardList,
 } from 'lucide-react';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../models/context/AuthContext.jsx';
+import { rutaInicioPorRol } from '../../models/context/AuthRoutes.jsx';
 import './Login.css';
+import './Registro.css';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -23,14 +26,13 @@ const CAPSULAS = [
   { tipo: 'ambar', top: '6%', left: '58%', ancho: 150, alto: 56, giro: -32, duracion: 8, retraso: 0, opacidad: 0.95 },
   { tipo: 'menta', top: '70%', left: '62%', ancho: 190, alto: 70, giro: 24, duracion: 10, retraso: 1.2, opacidad: 0.55 },
   { tipo: 'blanca', top: '84%', left: '6%', ancho: 120, alto: 44, giro: -18, duracion: 9, retraso: 0.6, opacidad: 0.35 },
-  { tipo: 'menta', top: '28%', left: '-3%', ancho: 100, alto: 38, giro: 48, duracion: 11, retraso: 2, opacidad: 0.25 },
   { tipo: 'ambar', top: '46%', left: '84%', ancho: 84, alto: 32, giro: 62, duracion: 7, retraso: 1.8, opacidad: 0.5 },
 ];
 
 const BENEFICIOS = [
-  { icono: ClipboardList, titulo: 'Tus compras anteriores', texto: 'Revisa qué pediste y cuándo.' },
-  { icono: RotateCcw, titulo: 'Volver a comprar', texto: 'Repite un pedido con un solo clic.' },
-  { icono: ShieldCheck, titulo: 'Tus datos protegidos', texto: 'Solo tú ves tu perfil y tu historial.' },
+  { icono: ShoppingCart, titulo: 'Tu carrito guardado', texto: 'Sigue tu compra desde cualquier dispositivo.' },
+  { icono: ClipboardList, titulo: 'Historial de compras', texto: 'Consulta y repite tus pedidos.' },
+  { icono: ShieldCheck, titulo: 'Datos protegidos', texto: 'Solo tú ves tu perfil y tu historial.' },
 ];
 
 const contenedor = {
@@ -43,7 +45,18 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 };
 
-function Campo({ id, etiqueta, icono: Icono, error, extra, children }) {
+// 0 a 4 según largo, mayúsculas/minúsculas, números y símbolos
+function fuerza(pw) {
+  if (!pw) return 0;
+  let puntos = 0;
+  if (pw.length >= 8) puntos += 1;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) puntos += 1;
+  if (/\d/.test(pw)) puntos += 1;
+  if (/[^A-Za-z0-9]/.test(pw) || pw.length >= 12) puntos += 1;
+  return puntos;
+}
+
+function Campo({ id, etiqueta, icono: Icono, error, extra, children, pie }) {
   return (
     <motion.div className={`login__field${error ? ' login__field--error' : ''}`} variants={item}>
       <label htmlFor={id}>{etiqueta}</label>
@@ -67,51 +80,52 @@ function Campo({ id, etiqueta, icono: Icono, error, extra, children }) {
           </motion.p>
         )}
       </AnimatePresence>
+      {pie}
     </motion.div>
   );
 }
 
-export default function Login() {
-  const { user, login } = useAuth();
+export default function Registro() {
+  const { user, registrar } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const reducirMovimiento = useReducedMotion();
   const sacudida = useAnimationControls();
 
-  const destinoSolicitado = location.state?.from?.pathname;
-  const destinoPara = (usuario) => destinoSolicitado || (usuario?.rol === 'admin' ? '/admin' : '/');
-
-  // Si ya había sesión al abrir /login, no tiene sentido mostrar el formulario
+  // Si ya había sesión al abrir /registro, no se muestra el formulario
   const [yaTeniaSesion] = useState(Boolean(user));
 
+  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmar, setConfirmar] = useState('');
   const [verPassword, setVerPassword] = useState(false);
   const [errores, setErrores] = useState({});
   const [enviando, setEnviando] = useState(false);
   const [bienvenido, setBienvenido] = useState(null);
 
-  // Tras el mensaje de bienvenida, se va a la página de origen (o al inicio)
+  // Tras el mensaje de bienvenida, va a la vista que le corresponde
   useEffect(() => {
     if (!bienvenido) return undefined;
-    const temporizador = setTimeout(
-      () => navigate(destinoPara(bienvenido), { replace: true }),
-      1300
-    );
+    const temporizador = setTimeout(() => navigate(rutaInicioPorRol(bienvenido), { replace: true }), 1300);
     return () => clearTimeout(temporizador);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bienvenido, navigate]);
 
-  if (yaTeniaSesion) return <Navigate to={destinoPara(user)} replace />;
+  if (yaTeniaSesion) return <Navigate to={rutaInicioPorRol(user)} replace />;
 
-  const sacudir = () =>
-    sacudida.start({ x: [0, -10, 10, -7, 7, 0], transition: { duration: 0.4 } });
+  const nivel = fuerza(password);
+  const etiquetasFuerza = ['', 'Débil', 'Regular', 'Buena', 'Fuerte'];
+
+  const sacudir = () => sacudida.start({ x: [0, -10, 10, -7, 7, 0], transition: { duration: 0.4 } });
 
   const validar = () => {
     const nuevos = {};
+    if (nombre.trim().length < 2) nuevos.nombre = 'Escribe tu nombre.';
     if (!email.trim()) nuevos.email = 'Escribe tu correo electrónico.';
     else if (!EMAIL_RE.test(email.trim())) nuevos.email = 'Revisa el correo: falta el @ o el dominio.';
-    if (!password) nuevos.password = 'Escribe tu contraseña.';
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+      nuevos.password = 'Mínimo 8 caracteres, con letras y números.';
+    }
+    if (confirmar !== password) nuevos.confirmar = 'Las contraseñas no coinciden.';
     return nuevos;
   };
 
@@ -128,10 +142,15 @@ export default function Login() {
 
     setEnviando(true);
     try {
-      const usuario = await login(email, password);
+      const usuario = await registrar(nombre.trim(), email.trim(), password);
       setBienvenido(usuario);
     } catch (err) {
-      setErrores({ general: err.message || 'No se pudo iniciar sesión. Inténtalo de nuevo.' });
+      // El servidor indica a qué campo pertenece el error (por ejemplo, correo ya registrado)
+      setErrores(
+        err.campo
+          ? { [err.campo]: err.message }
+          : { general: err.message || 'No se pudo crear la cuenta. Inténtalo de nuevo.' }
+      );
       sacudir();
     } finally {
       setEnviando(false);
@@ -161,7 +180,7 @@ export default function Login() {
             </Link>
           </motion.div>
 
-          <motion.h1 variants={item}>Tus pedidos y tus compras, siempre a la mano.</motion.h1>
+          <motion.h1 variants={item}>Crea tu cuenta y compra sin hacer fila.</motion.h1>
 
           <motion.ul className="login__benefits" variants={item}>
             {BENEFICIOS.map(({ icono: Icono, titulo, texto }) => (
@@ -201,29 +220,16 @@ export default function Login() {
               >
                 <svg className="login__ok-icon" viewBox="0 0 52 52" width="76" height="76" aria-hidden="true">
                   <motion.circle
-                    cx="26"
-                    cy="26"
-                    r="24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5 }}
+                    cx="26" cy="26" r="24" fill="none" stroke="currentColor" strokeWidth="3"
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.5 }}
                   />
                   <motion.path
-                    d="M15 27l8 8 14-16"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.4, delay: 0.35 }}
+                    d="M15 27l8 8 14-16" fill="none" stroke="currentColor" strokeWidth="3.5"
+                    strokeLinecap="round" strokeLinejoin="round"
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.4, delay: 0.35 }}
                   />
                 </svg>
-                <h2>Hola, {bienvenido.nombre}</h2>
+                <h2>Cuenta creada, {bienvenido.nombre}</h2>
                 <p>Preparando tu cuenta…</p>
               </motion.div>
             ) : (
@@ -238,8 +244,8 @@ export default function Login() {
                     animate="visible"
                   >
                     <motion.div variants={item}>
-                      <h2 className="login__title">Iniciar sesión</h2>
-                      <p className="login__subtitle">Entra para ver tu carrito, tus compras y tu perfil.</p>
+                      <h2 className="login__title">Crear cuenta</h2>
+                      <p className="login__subtitle">Solo necesitas tu nombre, un correo y una contraseña.</p>
                     </motion.div>
 
                     <AnimatePresence initial={false}>
@@ -257,9 +263,22 @@ export default function Login() {
                       )}
                     </AnimatePresence>
 
-                    <Campo id="login-email" etiqueta="Correo electrónico" icono={Mail} error={errores.email}>
+                    <Campo id="registro-nombre" etiqueta="Nombre" icono={User} error={errores.nombre}>
                       <input
-                        id="login-email"
+                        id="registro-nombre"
+                        type="text"
+                        autoComplete="name"
+                        placeholder="Tu nombre"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        aria-invalid={Boolean(errores.nombre)}
+                        aria-describedby={errores.nombre ? 'registro-nombre-error' : undefined}
+                      />
+                    </Campo>
+
+                    <Campo id="registro-email" etiqueta="Correo electrónico" icono={Mail} error={errores.email}>
+                      <input
+                        id="registro-email"
                         type="email"
                         inputMode="email"
                         autoComplete="email"
@@ -267,12 +286,12 @@ export default function Login() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         aria-invalid={Boolean(errores.email)}
-                        aria-describedby={errores.email ? 'login-email-error' : undefined}
+                        aria-describedby={errores.email ? 'registro-email-error' : undefined}
                       />
                     </Campo>
 
                     <Campo
-                      id="login-password"
+                      id="registro-password"
                       etiqueta="Contraseña"
                       icono={Lock}
                       error={errores.password}
@@ -287,16 +306,39 @@ export default function Login() {
                           {verPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       }
+                      pie={
+                        <div className="registro__strength" aria-live="polite">
+                          <div className={`registro__bars registro__bars--${nivel}`} aria-hidden="true">
+                            <span /><span /><span /><span />
+                          </div>
+                          <p className="registro__hint">
+                            {nivel ? `Seguridad: ${etiquetasFuerza[nivel]}` : 'Mínimo 8 caracteres, con letras y números.'}
+                          </p>
+                        </div>
+                      }
                     >
                       <input
-                        id="login-password"
+                        id="registro-password"
                         type={verPassword ? 'text' : 'password'}
-                        autoComplete="current-password"
-                        placeholder="Tu contraseña"
+                        autoComplete="new-password"
+                        placeholder="Crea una contraseña"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         aria-invalid={Boolean(errores.password)}
-                        aria-describedby={errores.password ? 'login-password-error' : undefined}
+                        aria-describedby={errores.password ? 'registro-password-error' : undefined}
+                      />
+                    </Campo>
+
+                    <Campo id="registro-confirmar" etiqueta="Confirmar contraseña" icono={Lock} error={errores.confirmar}>
+                      <input
+                        id="registro-confirmar"
+                        type={verPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
+                        placeholder="Repite tu contraseña"
+                        value={confirmar}
+                        onChange={(e) => setConfirmar(e.target.value)}
+                        aria-invalid={Boolean(errores.confirmar)}
+                        aria-describedby={errores.confirmar ? 'registro-confirmar-error' : undefined}
                       />
                     </Campo>
 
@@ -311,16 +353,16 @@ export default function Login() {
                         {enviando ? (
                           <>
                             <Loader2 size={18} className="login__spin" aria-hidden="true" />
-                            Entrando…
+                            Creando cuenta…
                           </>
                         ) : (
-                          'Iniciar sesión'
+                          'Crear cuenta'
                         )}
                       </motion.button>
                     </motion.div>
 
-                    <motion.p className="login__switch" variants={item}>
-                      ¿Aún no tienes cuenta? <Link to="/registro">Crear cuenta</Link>
+                    <motion.p className="registro__switch" variants={item}>
+                      ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
                     </motion.p>
                   </motion.form>
                 </motion.div>

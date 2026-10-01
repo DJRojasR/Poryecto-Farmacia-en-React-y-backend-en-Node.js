@@ -1,5 +1,5 @@
 // src/models/helpers/inventario.js
-import { obtenerProductos, actualizarProducto } from './productos.js';
+import { obtenerProductos, actualizarProducto } from './productos_local.js';
 
 const CLAVE_MOVIMIENTOS = 'fsm_movimientos_stock';
 

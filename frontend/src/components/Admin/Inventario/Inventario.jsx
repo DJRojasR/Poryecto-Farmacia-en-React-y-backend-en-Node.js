@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertTriangle, ArrowDownCircle, ArrowUpCircle, History, Pill, Search, X,
 } from 'lucide-react';
-import { obtenerProductos } from '../../../models/helpers/productos.js';
+import { obtenerProductos } from '../../../models/helpers/productos_local.js';
 import {
   MOTIVOS,
   obtenerMovimientos,

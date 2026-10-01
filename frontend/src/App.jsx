@@ -8,6 +8,7 @@ import Productos from './components/Productos/Productos.jsx';
 import Nosotros from './components/Nosotros/Nosotros.jsx';
 import Contacto from './components/Contacto/Contacto.jsx';
 import Login from './components/Auth/Login.jsx';
+import Registro from './components/Auth/Registro.jsx';
 import ProtectedRoute from './models/routes/ProtectedRoute.jsx';
 import AdminRoute from './models/routes/AdminRoute.jsx';
 import MisCompras from './components/Auth/Compras/Compras.jsx';
@@ -49,9 +50,19 @@ const App = () => {
         <Route path="*" element={<h2 style={{ padding: '2rem' }}>Página no encontrada</h2>} />
       </Route>
 
-      {/* Login: pantalla completa, sin Navbar ni Footer */}
+      {/* Login y Registro: pantalla completa, sin Navbar ni Footer */}
       <Route path="/login" element={<Login />} />
-      <Route path="/Admin/*" element={ <AdminRoute> <AdminLayout /> </AdminRoute>}>
+      <Route path="/registro" element={<Registro />} />
+
+      {/* Admin */}
+      <Route
+        path="/admin/*"
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
         <Route path="*" element={<AdminRoutes />} />
       </Route>
     </Routes>
