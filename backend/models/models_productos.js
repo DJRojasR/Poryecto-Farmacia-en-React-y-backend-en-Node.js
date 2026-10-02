@@ -1,36 +1,32 @@
 import pool from '../db/db.js';
-
-// Error "esperado" (regla de negocio): el controller lo convierte en respuesta HTTP
-export class ErrorNegocio extends Error {
-  constructor(status, mensaje) {
-    super(mensaje);
-    this.status = status;
-  }
-}
-
+import { ErrorNegocio } from '../helpers/errores.js';
+ 
+// Se re-exporta para no romper los imports que ya tenías
+export { ErrorNegocio };
+ 
 // Pedidos que todavía NO se entregaron ni se cancelaron: bloquean la eliminación.
-// Ajusta estos nombres a los estados reales de tu tabla pedidos.
+// Coinciden con el CHECK de pedidos.estado (sql/02_inventario_pedidos.sql)
 const ESTADOS_CERRADOS = ['entregado', 'cancelado'];
-
+ 
 const COLUMNAS = `id, nombre, marca, categoria, subcategoria, descripcion, imagen,
   precio, stock, requiere_receta, activo, creado_en, actualizado_en`;
-
+ 
 // NUMERIC llega como string desde pg
 const mapear = (f) => (f ? { ...f, precio: Number(f.precio) } : null);
-
+ 
 // Escapa % _ \ para que la búsqueda no sea un comodín accidental
 const escaparLike = (s) => s.replace(/[\\%_]/g, '\\$&');
-
+ 
 // Campos que se pueden modificar con actualizar() (lista blanca: nunca se arma SQL con claves del cliente)
 const EDITABLES = ['nombre', 'marca', 'categoria', 'subcategoria', 'descripcion', 'imagen', 'precio', 'requiere_receta'];
-
+ 
 function construirFiltros({ q, categoria, subcategoria, estado }) {
   const cond = [];
   const params = [];
-
+ 
   if (estado === 'activos') cond.push('activo = TRUE');
   else if (estado === 'inactivos') cond.push('activo = FALSE');
-
+ 
   if (categoria) {
     params.push(categoria);
     cond.push(`categoria = $${params.length}`);
@@ -45,15 +41,8 @@ function construirFiltros({ q, categoria, subcategoria, estado }) {
   }
   return { where: cond.length ? `WHERE ${cond.join(' AND ')}` : '', params };
 }
-
+ 
 async function tienePedidosAbiertos(client, productoId) {
-  // Si aún no creaste pedidos/pedido_items, no hay nada que revisar (y la consulta no falla)
-  const { rows: existe } = await client.query(
-    `SELECT to_regclass('public.pedidos') IS NOT NULL
-        AND to_regclass('public.pedido_items') IS NOT NULL AS ok`
-  );
-  if (!existe[0].ok) return false;
-
   const { rows } = await client.query(
     `SELECT EXISTS (
        SELECT 1
@@ -66,10 +55,10 @@ async function tienePedidosAbiertos(client, productoId) {
   );
   return rows[0].abierto;
 }
-
+ 
 export const ProductoModel = {
   // ---------- Lectura ----------
-
+ 
   // Catálogo público: solo activos; los agotados van al final pero se siguen mostrando
   async listarPublicos({ q, categoria, subcategoria, limite, offset }) {
     const { where, params } = construirFiltros({ q, categoria, subcategoria, estado: 'activos' });
@@ -84,7 +73,7 @@ export const ProductoModel = {
     );
     return { items: rows.map(mapear), total: rows[0] ? Number(rows[0].total) : 0 };
   },
-
+ 
   async listarAdmin({ q, categoria, estado, agotados, limite, offset }) {
     const { where, params } = construirFiltros({ q, categoria, estado });
     const extra = agotados ? `${where ? ' AND' : 'WHERE'} stock = 0` : '';
@@ -99,25 +88,35 @@ export const ProductoModel = {
     );
     return { items: rows.map(mapear), total: rows[0] ? Number(rows[0].total) : 0 };
   },
-
+ 
   async buscarPorId(id) {
     const { rows } = await pool.query(`SELECT ${COLUMNAS} FROM productos WHERE id = $1`, [id]);
     return mapear(rows[0]);
   },
-
+ 
   // ---------- Escritura (admin) ----------
-
-  async crear(d) {
+ 
+  // Crea el producto y, si trae stock, deja el movimiento 'stock_inicial' en el kardex.
+  // Es UNA sola sentencia: o se guardan las dos cosas o ninguna.
+  async crear(d, usuarioId = null) {
     try {
       const { rows } = await pool.query(
-        `INSERT INTO productos
-           (nombre, marca, categoria, subcategoria, descripcion, imagen, precio, stock, requiere_receta)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-         RETURNING ${COLUMNAS}`,
+        `WITH nuevo AS (
+           INSERT INTO productos
+             (nombre, marca, categoria, subcategoria, descripcion, imagen, precio, stock, requiere_receta)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+           RETURNING ${COLUMNAS}
+         ), kardex AS (
+           INSERT INTO movimientos_inventario
+             (producto_id, tipo, cantidad, motivo, stock_anterior, stock_resultante, usuario_id)
+           SELECT id, 'entrada', stock, 'stock_inicial', 0, stock, $10
+             FROM nuevo WHERE stock > 0
+         )
+         SELECT * FROM nuevo`,
         [
           d.nombre, d.marca ?? null, d.categoria, d.subcategoria ?? null,
           d.descripcion ?? null, d.imagen ?? null, d.precio, d.stock ?? 0,
-          d.requiere_receta ?? false,
+          d.requiere_receta ?? false, usuarioId,
         ]
       );
       return mapear(rows[0]);
@@ -128,15 +127,15 @@ export const ProductoModel = {
       throw err;
     }
   },
-
-  // El stock NO se edita aquí: se cambia con ajustarStock (evita pisar ventas simultáneas)
+ 
+  // El stock NO se edita aquí: se cambia con aplicarMovimiento (models_inventario.js)
   async actualizar(id, cambios) {
     const campos = EDITABLES.filter((k) => Object.prototype.hasOwnProperty.call(cambios, k));
     if (campos.length === 0) throw new ErrorNegocio(400, 'No hay cambios para guardar.');
-
+ 
     const sets = campos.map((k, i) => `${k} = $${i + 2}`);
     const valores = campos.map((k) => cambios[k]);
-
+ 
     try {
       const { rows } = await pool.query(
         `UPDATE productos
@@ -153,23 +152,7 @@ export const ProductoModel = {
       throw err;
     }
   },
-
-  // Suma o resta unidades de forma atómica. Nunca deja el stock por debajo de 0.
-  async ajustarStock(id, ajuste) {
-    const { rows } = await pool.query(
-      `UPDATE productos
-          SET stock = stock + $2, actualizado_en = NOW()
-        WHERE id = $1 AND stock + $2 >= 0
-        RETURNING ${COLUMNAS}`,
-      [id, ajuste]
-    );
-    if (rows[0]) return mapear(rows[0]);
-
-    const existente = await this.buscarPorId(id);
-    if (!existente) return null;
-    throw new ErrorNegocio(409, `No se puede restar ${Math.abs(ajuste)}: solo hay ${existente.stock} en stock.`);
-  },
-
+ 
   // "Eliminar" = desactivar. Se bloquea si algún cliente tiene el producto en un pedido sin entregar.
   async desactivar(id) {
     const client = await pool.connect();
@@ -200,7 +183,7 @@ export const ProductoModel = {
       client.release();
     }
   },
-
+ 
   async reactivar(id) {
     const { rows } = await pool.query(
       `UPDATE productos SET activo = TRUE, actualizado_en = NOW() WHERE id = $1 RETURNING ${COLUMNAS}`,
@@ -208,27 +191,8 @@ export const ProductoModel = {
     );
     return mapear(rows[0]);
   },
-
-  // ---------- Para el checkout (usar DENTRO de tu transacción de compra) ----------
-
-  // Descuento atómico: si dos clientes compran la última unidad, solo uno lo logra.
-  async descontarStock(client, productoId, cantidad) {
-    const { rows } = await client.query(
-      `UPDATE productos
-          SET stock = stock - $2, actualizado_en = NOW()
-        WHERE id = $1 AND activo = TRUE AND stock >= $2
-        RETURNING id, nombre, precio, stock`,
-      [productoId, cantidad]
-    );
-    if (!rows[0]) throw new ErrorNegocio(409, 'Uno de los productos está agotado o no tiene stock suficiente.');
-    return mapear(rows[0]);
-  },
-
-  // Al cancelar un pedido, devuelve las unidades
-  async reponerStock(client, productoId, cantidad) {
-    await client.query(
-      'UPDATE productos SET stock = stock + $2, actualizado_en = NOW() WHERE id = $1',
-      [productoId, cantidad]
-    );
-  },
+ 
+  // ⚠️ ajustarStock, descontarStock y reponerStock se ELIMINARON de aquí.
+  // Ahora todo cambio de stock pasa por aplicarMovimiento() en models_inventario.js,
+  // que además deja registro en el kardex (movimientos_inventario).
 };

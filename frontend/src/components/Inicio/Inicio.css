@@ -377,3 +377,41 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* src/components/Inicio/Inicio_agregar.css  →  pega esto AL FINAL de Inicio.css */
+/* Productos destacados reales (con foto) en lugar de los de ejemplo */
+
+.destacado__icono-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  border-radius: 14px;
+  background: var(--crema);
+  color: var(--menta);
+  overflow: hidden;
+  position: relative;
+}
+.destacado__icono-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+
+.destacado__nombre {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.destacado__aviso { margin: 0; font-size: 0.78rem; color: var(--primario); }
+
+.destacados__vacio {
+  margin: 0;
+  padding: 40px 16px;
+  max-width: none;
+  text-align: center;
+  background: var(--blanco);
+  border: 1px dashed var(--gris-suave);
+  border-radius: 18px;
+}

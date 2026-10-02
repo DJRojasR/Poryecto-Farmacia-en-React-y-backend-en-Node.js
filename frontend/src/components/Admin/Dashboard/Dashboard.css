@@ -1,4 +1,14 @@
-/* src/components/admin/Dashboard/Dashboard.css */
+/* src/components/Admin/Dashboard/Dashboard.css */
+/* Archivo COMPLETO: tu CSS original + lo nuevo del dashboard conectado al backend. */
+
+.dashboard__intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
 
 .dashboard__intro h1 {
   margin: 0 0 4px;
@@ -8,10 +18,25 @@
 }
 
 .dashboard__intro p {
-  margin: 0 0 24px;
+  margin: 0;
   opacity: 0.65;
   font-size: 0.95rem;
 }
+
+/* Mensaje de error (no se pudo cargar) */
+.dashboard__error {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #fdeaea;
+  color: #b3261e;
+  font-size: 0.9rem;
+  opacity: 1 !important;
+}
+
+/* Icono del botón "Actualizar" girando mientras carga */
+.dashboard__girando { animation: dashboard-giro 0.8s linear infinite; }
+@keyframes dashboard-giro { to { transform: rotate(360deg); } }
 
 /* Tarjetas por módulo */
 .dashboard__modulos {
@@ -35,6 +60,17 @@
 .dashboard__modulo--alerta { border-top-color: #b8860b; }
 .dashboard__modulo--critico { border-top-color: #b3261e; }
 .dashboard__modulo--exito { border-top-color: #227a45; }
+
+/* Ahora cada tarjeta es un enlace a su módulo */
+a.dashboard__modulo {
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+a.dashboard__modulo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(20, 44, 71, 0.1);
+}
 
 .dashboard__modulo-cabecera { display: flex; align-items: center; gap: 8px; }
 .dashboard__modulo-icono {
@@ -72,10 +108,21 @@
   color: var(--primario-oscuro, #142c47);
 }
 
+/* Sección "Productos por reponer" */
+.dashboard__seccion--alerta { margin-top: 16px; border-left: 4px solid #b8860b; }
+.dashboard__seccion--alerta h2 { display: flex; align-items: center; gap: 6px; }
+.dashboard__enlace {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primario, #1e4066);
+}
+
 /* Lista de pedidos recientes */
 .dashboard__lista-pedidos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .dashboard__lista-pedidos li {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
   padding: 10px 12px; border-radius: 10px; background: #fafbfc;
 }
 .dashboard__lista-pedidos strong { display: block; font-size: 0.9rem; }
@@ -89,13 +136,16 @@
   color: #8a919c; padding: 10px 12px; border-bottom: 1px solid #eceef1;
 }
 .dashboard__tabla td { padding: 12px; border-bottom: 1px solid #f2f3f5; color: #333; }
+.dashboard__tabla td small { opacity: 0.6; }
 .dashboard__tabla tbody tr:hover { background: #fafbfc; }
 .dashboard__tabla-vacio { text-align: center; padding: 24px 12px !important; color: #a7adb5; }
 
 /* Insignias */
-.dashboard__badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+.dashboard__badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
 .dashboard__badge--admin { background: #fbe7c6; color: #8a5a10; }
 .dashboard__badge--cliente { background: #e3e8f0; color: #3d4a5c; }
+.dashboard__badge--critico { background: #fdeaea; color: #b3261e; }
+.dashboard__badge--alerta { background: #fbe7c6; color: #8a5a10; }
 
 .dashboard__estado { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; }
 .dashboard__punto { width: 8px; height: 8px; border-radius: 50%; background: #c7cbd1; }

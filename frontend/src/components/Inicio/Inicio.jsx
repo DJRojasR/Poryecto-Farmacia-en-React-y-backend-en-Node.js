@@ -1,7 +1,13 @@
+// src/components/Inicio/Inicio.jsx
+// Cambios: se quitó el buscador (ahora solo está en /productos), los "destacados"
+// son productos reales que sube el admin, y "Agregar al carrito" abre el carrito.
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronLeft, ChevronRight, Pill } from 'lucide-react';
+import { urlImagen } from '../../models/helpers/productos.js';
+import { listarCatalogo } from '../../models/helpers/catalogo_api.js';
+import { useCart } from '../Auth/Cart/CartContext.jsx';
 import './Inicio.css';
 
 const fadeUp = {
@@ -20,60 +26,59 @@ const container = {
   },
 };
 
+// "categoria" = id real del catálogo: el enlace abre /productos ya filtrado
 const accesosRapidos = [
-  { id: '1', nombre: 'Farmacia Prime', icono: '⭐', color: '#e0a03c' },
-  { id: '2', nombre: 'Zona Depor', icono: '🏃', color: '#e65100' },
-  { id: '3', nombre: 'Cuidado del bebé', icono: '👶', color: '#0288d1' },
-  { id: '4', nombre: 'Cuidado personal', icono: '🧴', color: '#00897b' },
-  { id: '5', nombre: 'Packs del Ahorro', icono: '🏷️', color: '#c2185b' },
-  { id: '6', nombre: 'Monedero San Marcos', icono: '💳', color: '#5e35b1' },
-  { id: '7', nombre: 'Catálogos', icono: '📖', color: '#2e7d32' },
+  { id: '1', nombre: 'Medicamentos', icono: '💊', color: '#1e4066', categoria: 'med' },
+  { id: '2', nombre: 'Cuidado personal', icono: '🧴', color: '#00897b', categoria: 'cuidado' },
+  { id: '3', nombre: 'Dermocosmética', icono: '☀️', color: '#e65100', categoria: 'dermo' },
+  { id: '4', nombre: 'Salud y bienestar', icono: '💪', color: '#2e7d32', categoria: 'salud' },
+  { id: '5', nombre: 'Mamá y bebé', icono: '👶', color: '#0288d1', categoria: 'bebe' },
+  { id: '6', nombre: 'Todo el catálogo', icono: '📖', color: '#5e35b1', categoria: '' },
 ];
 
 const promociones = [
   {
     id: 'p1',
-    etiqueta: 'OFERTA DE LA SEMANA',
-    titulo: 'Hasta 30% dcto. en vitaminas',
-    descripcion: 'Refuerza tus defensas con nuestra línea de suplementos.',
+    etiqueta: 'SALUD Y BIENESTAR',
+    titulo: 'Refuerza tus defensas',
+    descripcion: 'Vitaminas y suplementos para toda la familia.',
     icono: '💪',
+    categoria: 'salud',
   },
   {
     id: 'p2',
-    etiqueta: 'CUIDADO PERSONAL',
-    titulo: '2x1 en protector solar',
-    descripcion: 'Prepárate para cuidar tu piel con las mejores marcas.',
+    etiqueta: 'DERMOCOSMÉTICA',
+    titulo: 'Cuida tu piel del sol',
+    descripcion: 'Protectores solares y cuidado facial de las mejores marcas.',
     icono: '🧴',
+    categoria: 'dermo',
   },
   {
     id: 'p3',
-    etiqueta: 'SALUD DENTAL',
-    titulo: '20% dcto. en higiene bucal',
-    descripcion: 'Pastas, cepillos y enjuagues recomendados por especialistas.',
+    etiqueta: 'CUIDADO PERSONAL',
+    titulo: 'Higiene para cada día',
+    descripcion: 'Pastas, cepillos, jabones y champús.',
     icono: '🦷',
+    categoria: 'cuidado',
   },
   {
     id: 'p4',
     etiqueta: 'MAMÁ Y BEBÉ',
-    titulo: '15% dcto. en línea infantil',
+    titulo: 'Todo para tu bebé',
     descripcion: 'Fórmulas, pañales y toallitas con la máxima suavidad.',
     icono: '🍼',
+    categoria: 'bebe',
   },
 ];
 
-const destacados = [
-  { icono: '💊', nombre: 'Paracetamol 500mg (Caja 20 tab)', marca: 'Panadol', precio: 12.5, descuento: 15, rating: 4.8 },
-  { icono: '🧴', nombre: 'Champú 2 en 1 Hidratación', marca: 'Head & Shoulders', precio: 55.9, descuento: 0, rating: 4.7 },
-  { icono: '☀️', nombre: 'Protector Solar FPS 50+ Facial', marca: 'La Roche-Posay', precio: 98.0, descuento: 10, rating: 4.9 },
-  { icono: '✨', nombre: 'Multivitamínico Gomitas Adulto', marca: 'Centrum', precio: 64.9, descuento: 20, rating: 4.8 },
+const servicios = [
+  { icono: '🚚', titulo: 'Delivery', desc: 'Recibe tu pedido en la puerta de tu casa.' },
+  { icono: '💳', titulo: 'Pago con tarjeta', desc: 'Paga en línea de forma segura al hacer tu pedido.' },
+  { icono: '📦', titulo: 'Recojo en tienda', desc: 'Haz tu pedido en línea y retíralo sin filas.' },
+  { icono: '🩺', titulo: 'Atención profesional', desc: 'Orientación farmacéutica garantizada.' },
 ];
 
-const servicios = [
-  { icono: '🚚', titulo: 'Delivery Express', desc: 'Llega en menos de 60 minutos hasta tu puerta.' },
-  { icono: '💳', titulo: 'Pagos Flexibles', desc: 'Aceptamos transferencias, Yape, Plin y tarjetas.' },
-  { icono: '📦', titulo: 'Recojo en Sede', desc: 'Haz tu pedido en línea y retíralo sin filas.' },
-  { icono: '🩺', titulo: 'Atención Profesional', desc: 'Orientación farmacéutica garantizada.' },
-];
+const enlaceCategoria = (categoria) => (categoria ? `/productos?categoria=${categoria}` : '/productos');
 
 function PromoHeroCarousel() {
   const [index, setIndex] = useState(0);
@@ -106,12 +111,7 @@ function PromoHeroCarousel() {
 
   return (
     <div className="home-banner-wrapper">
-      <button
-        className="home-banner__arrow home-banner__arrow--left"
-        onClick={prev}
-        aria-label="Anterior"
-        type="button"
-      >
+      <button className="home-banner__arrow home-banner__arrow--left" onClick={prev} aria-label="Anterior" type="button">
         <ChevronLeft size={24} />
       </button>
 
@@ -135,20 +135,15 @@ function PromoHeroCarousel() {
               <span className="home-banner__badge">{promo.etiqueta}</span>
               <h2 className="home-banner__title">{promo.titulo}</h2>
               <p className="home-banner__description">{promo.descripcion}</p>
-              <Link to="/productos" className="btn btn--primary">
-                Ver promoción
+              <Link to={enlaceCategoria(promo.categoria)} className="btn btn--primary">
+                Ver productos
               </Link>
             </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <button
-        className="home-banner__arrow home-banner__arrow--right"
-        onClick={next}
-        aria-label="Siguiente"
-        type="button"
-      >
+      <button className="home-banner__arrow home-banner__arrow--right" onClick={next} aria-label="Siguiente" type="button">
         <ChevronRight size={24} />
       </button>
 
@@ -168,43 +163,33 @@ function PromoHeroCarousel() {
 }
 
 export default function Inicio() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate();
+  const { agregar, abrirCarrito } = useCart();
+  const [destacados, setDestacados] = useState([]);
+  const [cargando, setCargando] = useState(true);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/productos?q=${encodeURIComponent(searchTerm.trim())}`);
-    } else {
-      navigate('/productos');
-    }
-  };
+  // Productos reales del catálogo (los que tienen stock salen primero)
+  useEffect(() => {
+    let vigente = true;
+    listarCatalogo({ pagina: 1, limite: 8 })
+      .then((r) => vigente && setDestacados(r.items.filter((p) => p.disponible).slice(0, 4)))
+      .catch(() => vigente && setDestacados([]))
+      .finally(() => vigente && setCargando(false));
+    return () => {
+      vigente = false;
+    };
+  }, []);
 
   const handleAddToCart = (producto) => {
-    console.log('Agregado al carrito:', producto.nombre);
+    // Sin sesión, agregar() lleva al login y devuelve false
+    if (agregar(producto)) abrirCarrito();
   };
 
   return (
     <div className="inicio-view">
-      {/* 1. BARRA SUPERIOR DE BÚSQUEDA */}
-      <div className="home-search-section">
-        <form onSubmit={handleSearch} className="home-search-bar">
-          <input
-            type="text"
-            placeholder="Busca una marca o producto..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <button type="submit" aria-label="Buscar producto">
-            <Search size={18} />
-          </button>
-        </form>
-      </div>
-
-      {/* 2. CINTA HORIZONTAL DE CATEGORÍAS */}
-      <nav className="home-categories-ribbon" aria-label="Accesos rápidos">
+      {/* 1. CINTA HORIZONTAL DE CATEGORÍAS */}
+      <nav className="home-categories-ribbon" aria-label="Categorías">
         {accesosRapidos.map((cat) => (
-          <Link key={cat.id} to="/productos" className="ribbon-item">
+          <Link key={cat.id} to={enlaceCategoria(cat.categoria)} className="ribbon-item">
             <span className="ribbon-item__icon">{cat.icono}</span>
             <span className="ribbon-item__name" style={{ color: cat.color }}>
               {cat.nombre}
@@ -213,12 +198,12 @@ export default function Inicio() {
         ))}
       </nav>
 
-      {/* 3. CARRUSEL PRINCIPAL DE PROMOCIONES */}
+      {/* 2. CARRUSEL PRINCIPAL */}
       <section className="home-hero-carousel-section">
         <PromoHeroCarousel />
       </section>
 
-      {/* 4. PRODUCTOS DESTACADOS */}
+      {/* 3. PRODUCTOS DESTACADOS (reales) */}
       <section className="section">
         <div className="section__header">
           <motion.h2
@@ -227,48 +212,52 @@ export default function Inicio() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            🔥 Ofertas y productos destacados
+            Productos destacados
           </motion.h2>
           <Link to="/productos" className="section__link">
             Ver catálogo completo →
           </Link>
         </div>
 
-        <motion.div
-          className="productos__grid"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          variants={container}
-        >
-          {destacados.map((prod) => (
-            <motion.div
-              key={prod.nombre}
-              className="producto-card-destacado"
-              variants={fadeUp}
-              whileHover={{ y: -6 }}
-            >
-              {prod.descuento > 0 && (
-                <span className="destacado__badge-descuento">-{prod.descuento}%</span>
-              )}
-              <div className="destacado__icono-box">{prod.icono}</div>
-              <span className="destacado__marca">{prod.marca}</span>
-              <p className="destacado__nombre">{prod.nombre}</p>
-              <p className="destacado__rating">⭐ {prod.rating}</p>
-              <p className="destacado__precio">S/ {prod.precio.toFixed(2)}</p>
-              <button
-                className="btn btn--primary btn--full"
-                onClick={() => handleAddToCart(prod)}
-                type="button"
-              >
-                Agregar al carrito
-              </button>
-            </motion.div>
-          ))}
-        </motion.div>
+        {!cargando && destacados.length === 0 ? (
+          <p className="destacados__vacio">
+            Pronto verás aquí nuestros productos. Mientras tanto, revisa el <Link to="/productos" className="section__link">catálogo</Link>.
+          </p>
+        ) : (
+          <motion.div
+            key={destacados.length}
+            className="productos__grid"
+            initial="hidden"
+            animate="visible"
+            variants={container}
+          >
+            {destacados.map((prod) => (
+              <motion.div key={prod.id} className="producto-card-destacado" variants={fadeUp} whileHover={{ y: -6 }}>
+                <div className="destacado__icono-box">
+                  {prod.imagen
+                    ? <img src={urlImagen(prod.imagen)} alt={prod.nombre} loading="lazy" />
+                    : <Pill size={44} strokeWidth={1.5} aria-hidden="true" />}
+                </div>
+                {prod.marca && <span className="destacado__marca">{prod.marca}</span>}
+                <p className="destacado__nombre">{prod.nombre}</p>
+                <p className="destacado__precio">S/ {Number(prod.precio).toFixed(2)}</p>
+                {prod.requiere_receta ? (
+                  <>
+                    <p className="destacado__aviso">Requiere receta · solo en tienda</p>
+                    <Link to="/productos" className="btn btn--ghost btn--full">Ver en catálogo</Link>
+                  </>
+                ) : (
+                  <button className="btn btn--primary btn--full" onClick={() => handleAddToCart(prod)} type="button">
+                    Agregar al carrito
+                  </button>
+                )}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </section>
 
-      {/* 5. SERVICIOS INSTITUCIONALES */}
+      {/* 4. SERVICIOS */}
       <section className="section section--alt">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
@@ -287,12 +276,7 @@ export default function Inicio() {
           variants={container}
         >
           {servicios.map((serv) => (
-            <motion.div
-              key={serv.titulo}
-              className="servicio-card"
-              variants={fadeUp}
-              whileHover={{ scale: 1.05 }}
-            >
+            <motion.div key={serv.titulo} className="servicio-card" variants={fadeUp} whileHover={{ scale: 1.05 }}>
               <span className="servicio-card__icono">{serv.icono}</span>
               <h3>{serv.titulo}</h3>
               <p>{serv.desc}</p>

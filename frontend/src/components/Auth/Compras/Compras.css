@@ -189,3 +189,32 @@
     justify-self: end;
   }
 }
+
+/* src/components/Auth/Compras/Compras_agregar.css  →  pega esto AL FINAL de Compras.css */
+ 
+.pedido__estado--cancelado { background: #fdecea; color: #b42318; }
+ 
+.pedido__entrega {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 0.88rem;
+  color: var(--primario);
+}
+ 
+.pedido__acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; justify-content: flex-end; }
+.pedido__pregunta { font-size: 0.9rem; font-weight: 600; }
+.pedido__error {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.88rem;
+}
+ 
+.compras__cargando { text-align: center; padding: 40px; opacity: 0.7; }
+ 
+/* Pedido creado pero todavía sin pagar */
+.pedido__estado--porpagar { background: var(--acento-suave); color: #7a4f0d; }

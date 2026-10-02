@@ -11,7 +11,8 @@ export default function AdminRoute({ children }) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
   if (user.rol !== 'admin') {
-    return <Navigate to="/admin" replace />;
+    // Antes decía "/admin": un cliente quedaba en un bucle infinito de redirecciones
+    return <Navigate to="/" replace />;
   }
 
   return children;
