@@ -15,7 +15,10 @@ import ventasRoutes from './routes/routes_ventas.js';               // 🆕
 import proveedoresRoutes from './routes/routes_proveedores.js';     // 🆕
 import adminUsuariosRoutes from './routes/routes_admin_usuarios.js'; // 🆕
 import { DIR_UPLOADS } from './middlewares/subir_imagen.js';
-import { PagoModel } from './models/models_pagos.js';                // 🆕
+import { PagoModel } from './models/models_pagos.js';
+import { estadoMensajeria } from './helpers/mensajeria.js';           // 🆕 Reto 1: middleware
+import swaggerUi from 'swagger-ui-express';                           // 🆕 Reto 2: documentación API
+import { especificacion } from './docs/openapi.js';
 
 if ((process.env.JWT_SECRET || '').length < 32) {
   console.error('JWT_SECRET falta o es muy corto (mínimo 32 caracteres). Revisa tu archivo .env');
@@ -62,11 +65,21 @@ app.use(
   })
 );
 
+// ---------- Reto 2: documentación del servicio web (OpenAPI / Swagger) ----------
+// http://localhost:4000/api/docs       -> página interactiva para probar la API
+// http://localhost:4000/api/docs.json  -> contrato OpenAPI en JSON (se puede importar en Postman)
+app.get('/api/docs.json', (_req, res) => res.json(especificacion));
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(especificacion, {
+  customSiteTitle: 'API Farmacia San Marcos',
+  swaggerOptions: { persistAuthorization: true },
+}));
+
 // ---------- Health check ----------
 app.get('/api/health', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
-    res.json({ ok: true });
+    // Muestra también el estado del middleware de mensajería (útil en la demo)
+    res.json({ ok: true, baseDeDatos: 'ok', mensajeria: await estadoMensajeria() });
   } catch {
     res.status(500).json({ ok: false });
   }

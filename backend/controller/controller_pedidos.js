@@ -3,6 +3,7 @@
 // y lo que hace el admin (listar, cambiar estado).
 import { PedidoModel } from '../models/models_pedidos.js';
 import { PagoModel } from '../models/models_pagos.js';
+import { publicarEventoPedido } from '../models/models_eventos.js';
 import { UsuarioAdminModel } from '../models/models_usuarios_admin.js';
 import { ESTADOS_PEDIDO } from '../helpers/constantes_negocio.js';
 import { idValido, manejar, paginacion, textoBusqueda, usuarioId } from '../helpers/http.js';
@@ -50,6 +51,7 @@ export const crear = manejar(async (req, res) => {
     nota: nota.valor,
     items,
   });
+  void publicarEventoPedido('pedido.creado', pedido.id); // middleware: no hace esperar al cliente
   res.status(201).json(pedido);
 });
 

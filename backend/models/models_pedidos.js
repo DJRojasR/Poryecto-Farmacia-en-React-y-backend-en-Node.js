@@ -183,14 +183,16 @@ export const PedidoModel = {
     await pool.query('UPDATE pedidos SET stripe_payment_intent_id = $2 WHERE id = $1', [id, paymentIntentId]);
   },
 
-  // Solo pasa de 'pendiente' a 'pagado' (si ya estaba pagado no hace nada)
+  // Solo pasa de 'pendiente' a 'pagado'. Devuelve true si ESTA llamada lo marcó
+  // (así el evento "pedido.pagado" se publica una sola vez).
   async marcarPagado(id) {
-    await pool.query(
+    const { rowCount } = await pool.query(
       `UPDATE pedidos
           SET pago_estado = 'pagado', pagado_en = NOW(), metodo_pago = 'tarjeta', actualizado_en = NOW()
         WHERE id = $1 AND pago_estado = 'pendiente'`,
       [id]
     );
+    return rowCount === 1;
   },
 
   async marcarReembolsado(id) {

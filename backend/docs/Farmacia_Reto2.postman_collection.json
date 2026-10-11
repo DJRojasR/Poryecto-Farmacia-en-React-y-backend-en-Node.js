@@ -1,0 +1,433 @@
+{
+  "info": {
+    "name": "Farmacia San Marcos — Proceso: compra en línea (Reto 2)",
+    "description": "Servicio web REST del proceso crítico pedido + pago.\n1) Edita las variables email y password con un usuario CLIENTE.\n2) Ejecuta las carpetas en orden (Run collection).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Flujo de compra",
+      "item": [
+        {
+          "name": "0. Health (API + BD + RabbitMQ)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "Verifica el servicio, la base de datos y el middleware RabbitMQ (Reto 1).",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Middleware conectado', () => pm.expect(pm.response.json().mensajeria).to.eql('ok'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "1. Login (obtiene el token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Devuelve token', () => pm.expect(j.token).to.be.a('string'));",
+                  "pm.collectionVariables.set('token', j.token); // lo usan las siguientes peticiones"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Catálogo (público)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/productos?limite=20",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const p = pm.response.json().items.find(x => x.disponible && !x.requiere_receta);",
+                  "pm.test('Hay un producto disponible para comprar', () => pm.expect(p).to.exist);",
+                  "if (p) pm.collectionVariables.set('productoId', p.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Crear pedido (operación principal)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/pedidos",
+            "description": "Descuenta stock en una transacción y publica 'pedido.creado' en RabbitMQ.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{productoId}},\n      \"cantidad\": 1\n    }\n  ],\n  \"entrega\": \"recojo\",\n  \"nota\": \"Pedido creado desde Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.test('Queda pendiente de pago', () => pm.expect(j.pago_estado).to.eql('pendiente'));",
+                  "pm.test('El servidor calculó el total', () => pm.expect(j.total).to.be.above(0));",
+                  "pm.collectionVariables.set('pedidoId', j.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Mis pedidos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/pedidos/mios",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const id = Number(pm.collectionVariables.get('pedidoId'));",
+                  "pm.test('Aparece el pedido recién creado', () => pm.expect(pm.response.json().items.map(p => p.id)).to.include(id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Iniciar pago (Stripe)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/pedidos/{{pedidoId}}/pago",
+            "description": "El pago con tarjeta se completa en la web (formulario de Stripe). Luego la web llama a /pago/confirmar.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve clientSecret de Stripe', () => pm.expect(pm.response.json().clientSecret).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Cancelar pedido",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/pedidos/{{pedidoId}}/cancelar",
+            "description": "Devuelve el stock y publica 'pedido.cancelado' en RabbitMQ.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Estado cancelado', () => pm.expect(pm.response.json().estado).to.eql('cancelado'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Casos de error",
+      "item": [
+        {
+          "name": "E1. Sin token → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/pedidos",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{productoId}},\n      \"cantidad\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('401 sin autenticación', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E2. Datos inválidos → 400",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/pedidos",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{productoId}},\n      \"cantidad\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 validación', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje claro', () => pm.expect(pm.response.json().mensaje).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E3. Stock insuficiente → 409",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/pedidos",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productoId\": {{productoId}},\n      \"cantidad\": 99\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('409 conflicto de stock (si hay menos de 99 unidades)', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "E4. Pedido inexistente → 404",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{baseUrl}}/pedidos/999999/cancelar",
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 no encontrado', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api"
+    },
+    {
+      "key": "email",
+      "value": "cliente@correo.com"
+    },
+    {
+      "key": "password",
+      "value": "CambiaEstaClave1"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "productoId",
+      "value": ""
+    },
+    {
+      "key": "pedidoId",
+      "value": ""
+    }
+  ]
+}

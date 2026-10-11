@@ -5,6 +5,12 @@
 import { ErrorNegocio } from '../helpers/errores.js';
 import { MONEDA, aCentimos, conStripe } from '../helpers/stripe.js';
 import { PedidoModel } from './models_pedidos.js';
+import { publicarEventoPedido } from './models_eventos.js';
+
+// Marca pagado y, si cambió, avisa por el middleware (sin hacer esperar al cliente)
+async function marcarPagadoYAvisar(id) {
+  if (await PedidoModel.marcarPagado(id)) void publicarEventoPedido('pedido.pagado', id);
+}
 
 // El cobro en Stripe debe ser exactamente el de este pedido
 const corresponde = (pi, p) =>
@@ -36,7 +42,7 @@ export const PagoModel = {
       pi = await conStripe((s) => s.paymentIntents.retrieve(p.stripe_payment_intent_id));
       if (pi.status === 'succeeded' && corresponde(pi, p)) {
         // Pagó pero cerró la pestaña antes de confirmar: se pone al día
-        await PedidoModel.marcarPagado(p.id);
+        await marcarPagadoYAvisar(p.id);
         return { yaPagado: true };
       }
       if (pi.status === 'canceled' || !corresponde(pi, p)) pi = null;
@@ -48,12 +54,14 @@ export const PagoModel = {
           {
             amount: aCentimos(p.total), // el monto sale de la BD, no del cliente
             currency: MONEDA,
+            // Stripe ya no acepta "payment_method_types": los métodos se activan en su panel.
+            // allow_redirects 'never' = solo métodos que se pagan sin salir de la página (tarjeta).
             automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
             description: `Farmacia San Marcos - pedido ${p.id}`,
             metadata: { pedido_id: String(p.id) },
           },
           // Si llegan dos solicitudes a la vez, Stripe crea un solo cobro
-          { idempotencyKey: `pedido-${p.id}-${p.stripe_payment_intent_id ?? 'nuevo'}` }
+          { idempotencyKey: `pedido-${p.id}-v2-${p.stripe_payment_intent_id ?? 'nuevo'}` }
         )
       );
       await PedidoModel.guardarPaymentIntent(p.id, pi.id);
@@ -81,7 +89,7 @@ export const PagoModel = {
       throw new ErrorNegocio(409, 'El pedido se había cancelado por falta de pago. Te devolvimos el cobro; vuelve a hacer el pedido.');
     }
 
-    await PedidoModel.marcarPagado(p.id);
+    await marcarPagadoYAvisar(p.id);
     return true;
   },
 
@@ -92,6 +100,7 @@ export const PagoModel = {
    * y el pedido se ve como "cancelado + pagado" (reembolso pendiente).
    */
   async alCancelar(pedidoId) {
+    void publicarEventoPedido('pedido.cancelado', pedidoId); // se llama tras TODA cancelación web
     try {
       const p = await PedidoModel.datosPago(pedidoId);
       if (!p?.stripe_payment_intent_id) return;
@@ -122,7 +131,7 @@ export const PagoModel = {
         if (p.stripe_payment_intent_id) {
           const pi = await conStripe((s) => s.paymentIntents.retrieve(p.stripe_payment_intent_id));
           if (pi.status === 'succeeded' && corresponde(pi, p)) {
-            await PedidoModel.marcarPagado(id);
+            await marcarPagadoYAvisar(id);
             continue;
           }
         }
