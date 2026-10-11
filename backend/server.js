@@ -3,7 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import pool from './db/db.js';
+import pool, { probarConexion, describirError } from './db/db.js';
 import { limiteGeneral } from './middlewares/rate_limit.js';
 import authRoutes from './routes/auth_routes.js';
 import usuariosRoutes from './routes/routes_usuarios.js';
@@ -115,10 +115,11 @@ const MINUTOS_PARA_PAGAR = Number(process.env.PEDIDO_MINUTOS_PAGO) || 30;
 setInterval(() => {
   PagoModel.cancelarImpagosVencidos(MINUTOS_PARA_PAGAR)
     .then((n) => n && console.log(`Pedidos sin pagar cancelados: ${n}`))
-    .catch((err) => console.error('Error liberando pedidos impagos:', err.message));
+    .catch((err) => console.error('Error liberando pedidos impagos:', describirError(err)));
 }, 5 * 60 * 1000).unref();
 
 const PUERTO = Number(process.env.PORT) || 3000;
-app.listen(PUERTO, () =>
-  console.log(`API de Farmacia San Marcos en http://localhost:${PUERTO}`)
-);
+app.listen(PUERTO, () => {
+  console.log(`API de Farmacia San Marcos en http://localhost:${PUERTO}`);
+  void probarConexion(); // muestra en el log si la base de datos conecta
+});
