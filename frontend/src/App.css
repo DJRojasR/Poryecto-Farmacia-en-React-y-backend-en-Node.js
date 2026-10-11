@@ -138,3 +138,29 @@ button {
   font-weight: 600;
   color: var(--primario);
 }
+
+/* src/App_agregar.css  →  pega esto AL FINAL de src/App.css */
+/* Botones nuevos que usan Ventas, Pedidos, Proveedores y Mis compras */
+ 
+.btn--pequeno {
+  padding: 7px 14px;
+  font-size: 0.85rem;
+}
+ 
+.btn--peligro {
+  background: #c0392b;
+  color: var(--blanco);
+  box-shadow: 0 8px 20px rgba(192, 57, 43, 0.25);
+}
+.btn--peligro:hover {
+  transform: translateY(-2px);
+  background: #a93226;
+}
+ 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+ 

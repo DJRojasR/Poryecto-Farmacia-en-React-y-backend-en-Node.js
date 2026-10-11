@@ -1,5 +1,5 @@
 // src/App.jsx
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import './App.css';
 import Navbar from './components/Navbar/Navbar.jsx';
 import Footer from './components/Footer/Footer.jsx';
@@ -30,12 +30,17 @@ const LayoutPrincipal = () => {
   );
 };
 
+const InicioSegunRol = () => {
+  const { user } = useAuth();
+  return user?.rol === 'admin' ? <Navigate to="/admin" replace /> : <Inicio />;
+};
+
 const App = () => {
   return (
     <Routes>
       {/* Rutas con Navbar y Footer */}
       <Route element={<LayoutPrincipal />}>
-        <Route path="/" element={<Inicio />} />
+        <Route path="/" element={<InicioSegunRol />} />
         <Route path="/productos" element={<Productos />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/contacto" element={<Contacto />} />

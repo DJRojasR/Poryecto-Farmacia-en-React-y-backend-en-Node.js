@@ -80,3 +80,5 @@ desktop.ini
 *.pid
 *.seed
 *.tgz
+*.postman
+portman

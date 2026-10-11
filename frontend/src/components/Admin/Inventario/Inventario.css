@@ -139,3 +139,193 @@
 @media (max-width: 640px) {
   .inv-admin__tarjetas { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* Pega esto AL FINAL de Inventario.css (clases nuevas que usa el Inventario conectado al backend) */
+ 
+.inv-admin__filtros {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.inv-admin__filtros .inv-admin__buscador { flex: 1 1 260px; margin-bottom: 0; }
+.inv-admin__filtros select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+}
+ 
+/* Tarjetas que filtran al hacer clic */
+.inv-admin__tarjeta--clic {
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-align: left;
+  font: inherit;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.inv-admin__tarjeta--clic:hover { transform: translateY(-2px); }
+.inv-admin__tarjeta--seleccionada { border-color: currentColor; }
+ 
+.inv-admin__marca { color: #6b7280; }
+.inv-admin__negativo { color: #dc2626; }
+ 
+.inv-admin__error-general {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+ 
+.inv-admin__paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+ 
+.inv-admin__cargar-mas { width: 100%; margin-top: 12px; }
+.inv-admin__lista-mov { max-height: 55vh; overflow-y: auto; }
+ 
+/* ---------- Pega esto AL FINAL de Dashboard.css ---------- */
+ 
+.dashboard__intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+a.dashboard__modulo { color: inherit; text-decoration: none; transition: transform 0.15s; }
+a.dashboard__modulo:hover { transform: translateY(-2px); }
+ 
+.dashboard__error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.dashboard__girando { animation: dashboard-giro 0.8s linear infinite; }
+@keyframes dashboard-giro { to { transform: rotate(360deg); } }
+ 
+.dashboard__seccion--alerta { margin-top: 20px; border-left: 4px solid #d97706; }
+.dashboard__seccion--alerta h2 { display: flex; align-items: center; gap: 6px; }
+.dashboard__badge--critico { color: #dc2626; background: #dc26261a; }
+.dashboard__badge--alerta { color: #d97706; background: #d977061a; }
+.dashboard__enlace { display: inline-block; margin-top: 10px; font-weight: 600; }
+
+/* src/components/Admin/Inventario/Inventario_agregar.css */
+/* Pega esto AL FINAL de Inventario.css (clases nuevas que usa el Inventario conectado al backend) */
+
+.inv-admin__filtros {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.inv-admin__filtros .inv-admin__buscador { flex: 1 1 260px; margin-bottom: 0; }
+.inv-admin__filtros select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  font: inherit;
+}
+
+/* Tarjetas que filtran al hacer clic */
+.inv-admin__tarjeta--clic {
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-align: left;
+  font: inherit;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.inv-admin__tarjeta--clic:hover { transform: translateY(-2px); }
+.inv-admin__tarjeta--seleccionada { border-color: currentColor; }
+
+.inv-admin__marca { color: #6b7280; }
+.inv-admin__negativo { color: #dc2626; }
+
+.inv-admin__error-general {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+}
+
+.inv-admin__paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.inv-admin__cargar-mas { width: 100%; margin-top: 12px; }
+.inv-admin__lista-mov { max-height: 55vh; overflow-y: auto; }
+
+/* ---------- Pega esto AL FINAL de Dashboard.css ---------- */
+
+.dashboard__intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+a.dashboard__modulo { color: inherit; text-decoration: none; transition: transform 0.15s; }
+a.dashboard__modulo:hover { transform: translateY(-2px); }
+
+.dashboard__error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.dashboard__girando { animation: dashboard-giro 0.8s linear infinite; }
+@keyframes dashboard-giro { to { transform: rotate(360deg); } }
+
+.dashboard__seccion--alerta { margin-top: 20px; border-left: 4px solid #d97706; }
+.dashboard__seccion--alerta h2 { display: flex; align-items: center; gap: 6px; }
+.dashboard__badge--critico { color: #dc2626; background: #dc26261a; }
+.dashboard__badge--alerta { color: #d97706; background: #d977061a; }
+.dashboard__enlace { display: inline-block; margin-top: 10px; font-weight: 600; }
+
+/* ---------- Pestañas Existencias / Movimientos ---------- */
+.inv-admin__tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--gris-suave);
+}
+.inv-admin__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: -2px;
+  padding: 10px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--carbon);
+  opacity: 0.65;
+  cursor: pointer;
+}
+.inv-admin__tab:hover { opacity: 1; }
+.inv-admin__tab--activa { opacity: 1; color: var(--primario-oscuro); border-bottom-color: var(--acento); }
+
+/* Cantidad del movimiento: verde entra, rojo sale */
+.inv-admin__mov-cant { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; }
+.inv-admin__mov-cant--entrada { color: #16a34a; }
+.inv-admin__mov-cant--salida { color: #dc2626; }
+.inv-admin__mov-nota { display: block; opacity: 0.7; }
