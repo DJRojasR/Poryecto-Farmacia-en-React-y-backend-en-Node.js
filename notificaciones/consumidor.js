@@ -10,6 +10,7 @@
 import amqp from 'amqplib';
 import { armarCorreo, tiposSoportados } from './plantillas.js';
 import { enviarCorreo } from './correo.js';
+import { pedirComprobante } from './comprobante.js';
 import { contar, liberar, ocultarEmail, registrar, reservar } from './almacen.js';
 
 const EXCHANGE = 'farmacia.eventos';
@@ -76,10 +77,22 @@ async function procesar(canal, msg) {
   }
 
   try {
-    const correo = armarCorreo(tipo, datos);
-    const r = await enviarConReintentos({ para: datos.cliente.email, ...correo });
+    // Reto 5: si el pedido se pagó, se pide el comprobante PDF a la función serverless
+    const comprobante = tipo === 'pedido.pagado' ? await pedirComprobante(datos) : null;
+    const correo = armarCorreo(tipo, datos, { conComprobante: Boolean(comprobante) });
+    const r = await enviarConReintentos({
+      para: datos.cliente.email,
+      ...correo,
+      adjuntos: comprobante ? [comprobante] : [],
+    });
     contar('enviados');
-    registrar({ ...base, estado: 'enviado', asunto: correo.asunto, vistaPrevia: r.vistaPrevia });
+    registrar({
+      ...base,
+      estado: 'enviado',
+      asunto: correo.asunto,
+      comprobante: Boolean(comprobante),
+      vistaPrevia: r.vistaPrevia,
+    });
     console.log(`   ✅ correo enviado a ${base.para}${r.vistaPrevia ? `\n   👀 ver: ${r.vistaPrevia}` : ''}`);
     canal.ack(msg); // procesado: RabbitMQ lo borra de la cola
   } catch (err) {

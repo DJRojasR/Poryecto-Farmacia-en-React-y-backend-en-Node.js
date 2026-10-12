@@ -13,8 +13,12 @@ async function marcarPagadoYAvisar(id) {
 }
 
 // El cobro en Stripe debe ser exactamente el de este pedido
+// (pedido_creado distingue pedidos con el mismo número en bases distintas: tu PC y Render)
 const corresponde = (pi, p) =>
-  pi.metadata?.pedido_id === String(p.id) && pi.amount === aCentimos(p.total) && pi.currency === MONEDA;
+  pi.metadata?.pedido_id === String(p.id) &&
+  pi.metadata?.pedido_creado === p.creado_ms &&
+  pi.amount === aCentimos(p.total) &&
+  pi.currency === MONEDA;
 
 async function reembolsar(p) {
   await conStripe((s) =>
@@ -58,10 +62,13 @@ export const PagoModel = {
             // allow_redirects 'never' = solo métodos que se pagan sin salir de la página (tarjeta).
             automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
             description: `Farmacia San Marcos - pedido ${p.id}`,
-            metadata: { pedido_id: String(p.id) },
+            metadata: { pedido_id: String(p.id), pedido_creado: p.creado_ms },
           },
-          // Si llegan dos solicitudes a la vez, Stripe crea un solo cobro
-          { idempotencyKey: `pedido-${p.id}-v2-${p.stripe_payment_intent_id ?? 'nuevo'}` }
+          // Si llegan dos solicitudes a la vez, Stripe crea un solo cobro.
+          // Se incluye la fecha de creación del pedido: tu PC y Render tienen bases distintas
+          // con los mismos números de pedido (11, 12...) y comparten la cuenta de Stripe;
+          // sin esto, Stripe devolvería a uno el cobro ya pagado del otro.
+          { idempotencyKey: `pedido-${p.id}-${p.creado_ms}-v3-${p.stripe_payment_intent_id ?? 'nuevo'}` }
         )
       );
       await PedidoModel.guardarPaymentIntent(p.id, pi.id);

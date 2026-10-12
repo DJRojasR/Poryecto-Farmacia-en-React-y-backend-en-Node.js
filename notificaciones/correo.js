@@ -11,16 +11,23 @@ let modo = 'sin_iniciar';
 
 // "Farmacia San Marcos <correo@x.com>" -> { name, email }
 function remitente() {
-  const texto = process.env.CORREO_REMITENTE || 'Farmacia San Marcos <no-responder@farmaciasanmarcos.pe>';
+  // En Render las comillas NO se quitan solas: se limpian aquí por si las pegaste
+  const texto = (process.env.CORREO_REMITENTE || 'Farmacia San Marcos <no-responder@farmaciasanmarcos.pe>')
+    .trim()
+    .replace(/^["']+|["']+$/g, '');
   const m = texto.match(/^\s*"?([^"<]*)"?\s*<([^>]+)>\s*$/);
   return m ? { name: m[1].trim() || 'Farmacia San Marcos', email: m[2].trim() } : { name: 'Farmacia San Marcos', email: texto.trim() };
 }
 
-async function enviarPorBrevo({ para, asunto, html, texto }) {
+async function enviarPorBrevo({ para, asunto, html, texto, adjuntos = [] }) {
+  const cuerpoCorreo = { sender: remitente(), to: [{ email: para }], subject: asunto, htmlContent: html, textContent: texto };
+  if (adjuntos.length) {
+    cuerpoCorreo.attachment = adjuntos.map((a) => ({ name: a.nombre, content: a.contenido.toString('base64') }));
+  }
   const r = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'api-key': process.env.BREVO_API_KEY, 'content-type': 'application/json', accept: 'application/json' },
-    body: JSON.stringify({ sender: remitente(), to: [{ email: para }], subject: asunto, htmlContent: html, textContent: texto }),
+    body: JSON.stringify(cuerpoCorreo),
     signal: AbortSignal.timeout(15_000),
   });
   const cuerpo = await r.json().catch(() => ({}));
@@ -56,13 +63,20 @@ async function obtenerTransporte() {
 
 export const modoCorreo = () => (process.env.BREVO_API_KEY ? 'brevo' : modo);
 
-/** Envía el correo. Devuelve { messageId, vistaPrevia } (vistaPrevia solo en modo Ethereal). */
+/** Envía el correo (adjuntos opcionales: [{ nombre, contenido: Buffer }]). Devuelve { messageId, vistaPrevia } (vistaPrevia solo en modo Ethereal). */
 export async function enviarCorreo(correo) {
   if (process.env.BREVO_API_KEY) return enviarPorBrevo(correo);
 
-  const { para, asunto, html, texto } = correo;
+  const { para, asunto, html, texto, adjuntos = [] } = correo;
   const t = await obtenerTransporte();
   const r = remitente();
-  const info = await t.sendMail({ from: { name: r.name, address: r.email }, to: para, subject: asunto, text: texto, html });
+  const info = await t.sendMail({
+    from: { name: r.name, address: r.email },
+    to: para,
+    subject: asunto,
+    text: texto,
+    html,
+    attachments: adjuntos.map((a) => ({ filename: a.nombre, content: a.contenido, contentType: 'application/pdf' })),
+  });
   return { messageId: info.messageId, vistaPrevia: nodemailer.getTestMessageUrl(info) || null };
 }
