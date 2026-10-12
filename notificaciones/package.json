@@ -1,0 +1,20 @@
+{
+  "name": "farmacia-notificaciones",
+  "version": "1.0.0",
+  "description": "Reto 4 - Microservicio de notificaciones de Farmacia San Marcos (consume eventos de RabbitMQ y envía correos)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "nodemailer": "^10.0.16"
+  }
+}
