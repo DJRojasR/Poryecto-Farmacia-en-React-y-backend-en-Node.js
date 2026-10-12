@@ -1,0 +1,16 @@
+{
+  "name": "farmacia-comprobantes",
+  "version": "1.0.0",
+  "description": "Reto 5 - Función serverless (Vercel) que genera el comprobante PDF de un pedido pagado",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "probar": "node probar_local.js"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}

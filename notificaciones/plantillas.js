@@ -35,9 +35,10 @@ const TEXTOS = {
 
 export const tiposSoportados = Object.keys(TEXTOS);
 
-export function armarCorreo(tipo, d) {
+export function armarCorreo(tipo, d, { conComprobante = false } = {}) {
   const t = TEXTOS[tipo];
   if (!t) return null;
+  const mensaje = conComprobante ? `${t.mensaje} Adjuntamos tu comprobante en PDF.` : t.mensaje;
 
   const items = Array.isArray(d.items) ? d.items : [];
   const entrega = d.entrega === 'delivery' ? `Delivery a: ${d.direccion ?? '-'}` : 'Recojo en tienda';
@@ -61,7 +62,7 @@ export function armarCorreo(tipo, d) {
     </div>
     <div style="padding:20px 24px">
       <p>Hola ${esc(d.cliente?.nombre || 'cliente')},</p>
-      <p>${esc(t.mensaje)}</p>
+      <p>${esc(mensaje)}</p>
       <p style="margin:16px 0 8px"><b>Pedido:</b> ${esc(d.codigo)}<br><b>Entrega:</b> ${esc(entrega)}</p>
       <table style="width:100%;border-collapse:collapse;font-size:14px">
         <thead><tr style="background:#f3f4f6">
@@ -85,7 +86,7 @@ export function armarCorreo(tipo, d) {
   const texto = [
     `Farmacia San Marcos - ${t.titulo}`,
     `Hola ${d.cliente?.nombre || 'cliente'},`,
-    t.mensaje,
+    mensaje,
     `Pedido: ${d.codigo}`,
     `Entrega: ${entrega}`,
     ...items.map((i) => `- ${i.nombre} x${i.cantidad}: ${soles(i.subtotal)}`),

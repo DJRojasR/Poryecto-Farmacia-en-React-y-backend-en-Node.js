@@ -172,7 +172,8 @@ export const PedidoModel = {
   // Datos internos del pago. OJO: incluye el id de Stripe, no enviarlo tal cual al cliente.
   async datosPago(id) {
     const { rows } = await pool.query(
-      `SELECT id, usuario_id, canal, estado, total, pago_estado, stripe_payment_intent_id
+      `SELECT id, usuario_id, canal, estado, total, pago_estado, stripe_payment_intent_id,
+              (EXTRACT(EPOCH FROM creado_en) * 1000)::bigint::text AS creado_ms
          FROM pedidos WHERE id = $1`,
       [id]
     );
